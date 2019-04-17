@@ -8,7 +8,6 @@ namespace cv {
     class Mat;
 }
 
-
 /*!
  * \brief The FaceRecognizer class
  */
