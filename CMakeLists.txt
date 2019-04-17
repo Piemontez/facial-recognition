@@ -20,7 +20,18 @@ add_executable(facerecog-tester
 	main.cpp
 	algorithmfactory.cpp
 	algorithmtest.cpp
-	tester.cpp)
+        tester.cpp
+#testadores
+        tester/3dtester.cpp
+        tester/irtester.cpp
+        tester/vistester.cpp
+#imageloader
+        loader/3dloader.cpp
+        loader/irloader.cpp
+        loader/visloader.cpp
+#processadoresimagem
+        processor/3dgaussianblur.cpp
+        processor/posecorretion.cpp)
 
 target_link_libraries(facerecog-tester
   ${JSONCPP_LIBRARIES})
