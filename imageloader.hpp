@@ -1,0 +1,4 @@
+#ifndef IMAGELOADER_HPP
+#define IMAGELOADER_HPP
+
+#endif // IMAGELOADER_HPP
