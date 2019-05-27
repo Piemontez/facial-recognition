@@ -18,6 +18,7 @@ public:
     int successTests();
     int failTests();
 
+    FaceRecognizer *recognizer();
     void setRecognizer(FaceRecognizer *recognizer);
     void setTrainImages(std::vector<cv::Mat> images, std::vector<int> labels);
     void setImagesToTest(std::vector<cv::Mat> images, std::vector<int> labels);

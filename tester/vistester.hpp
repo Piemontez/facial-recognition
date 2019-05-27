@@ -7,6 +7,8 @@ class VisTester : public Tester
 {
 public:
     VisTester() {}
+
+    virtual std::string name() override;
 };
 
 #endif // VISTESTER_HPP

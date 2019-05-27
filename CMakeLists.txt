@@ -34,6 +34,7 @@ add_executable(facerecog-tester
         processor/posecorretion.cpp)
 
 target_link_libraries(facerecog-tester
+  ${OpenCV_LIBS}
   ${JSONCPP_LIBRARIES})
 
 install(TARGETS facerecog-tester DESTINATION bin)
