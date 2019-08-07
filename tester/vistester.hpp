@@ -6,7 +6,7 @@
 class VisTester : public Tester
 {
 public:
-    VisTester() {}
+    VisTester();
 
     virtual std::string name() override;
 };

@@ -8,6 +8,9 @@
 #include <iostream>
 
 struct TesterPrivate {
+    std::vector<cv::Mat> images;
+    std::vector<int> labels;
+
     std::vector<AlgorithmTest*> tester;
     std::vector<ImageProcessor *> imgsProcessor;
     ImageLoader *imgLoader{nullptr};
@@ -21,6 +24,16 @@ Tester::Tester() : d_ptr(new TesterPrivate)
 std::string Tester::name()
 {
     return "No Name";
+}
+
+std::vector<cv::Mat> Tester::images()
+{
+    return this->d_ptr->images;
+}
+
+std::vector<int> Tester::labels()
+{
+    return this->d_ptr->labels;
 }
 
 std::vector<cv::Mat> Tester::imagesTrain()
@@ -65,23 +78,27 @@ void Tester::setImageLoader(ImageLoader *processor)
 
 void Tester::run()
 {
-    std::cout << "Teste " << name() << std::endl;
+    std::cout << "< TESTE: " << name() << " >" << std::endl;
 
-    std::cout << "  Carregando imagens" << std::endl;
+    std::cout << "  Carregando imagens." << std::endl;
 
     if (imageLoader()) {
-        imageLoader()->loadTrainingImages();
-        imageLoader()->loadTestImages();
+        this->d_ptr->images = imageLoader()->images();
+        this->d_ptr->labels = imageLoader()->labels();
     }
 
-    if (!imagesTrain().size()){
-        std::cout << "    Nenhuma imagem de trainamento carregada" << std::endl;
-        std::cout << "  Teste finalizado" << std::endl;
+    if (!images().size()){
+        std::cout << "  Nenhuma imagem carregada." << std::endl;
+        std::cout << "  Teste finalizado." << std::endl;
         return;
     }
-    if (!imagesTest().size()){
-        std::cout << "    Nenhuma imagem de testes carregada" << std::endl;
-        std::cout << "  Teste finalizado" << std::endl;
+
+    if (images().size() != labels().size()) {
+        std::cout << "  A quantidade de labels é diferente da quantidade de imagens." << std::endl;
+        std::cout << "  Teste finalizado." << std::endl;
         return;
     }
+
+    std::cout << "  Total de imagens:" << images().size() << std::endl;
+
 }

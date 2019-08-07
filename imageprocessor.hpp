@@ -8,8 +8,6 @@ namespace cv {
 class ImageProcessor
 {
 public:
-    virtual ~ImageProcessor() = 0;
-
     virtual cv::Mat process(cv::Mat image) = 0;
 };
 

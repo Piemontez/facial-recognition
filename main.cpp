@@ -26,9 +26,10 @@ int main(int /*argc*/, char **/*argv*/)
     std::cout << "Coletando Testadores" << std::endl;
 
     std::vector<Tester *> tests;
-    tests.push_back(new ThreeDTester);
-    tests.push_back(new IRTester);
+
     tests.push_back(new VisTester);
+    tests.push_back(new IRTester);
+    tests.push_back(new ThreeDTester);
 
     std::cout << "  Total testadores:" << tests.size() << std::endl;
     for(auto && tester: tests)

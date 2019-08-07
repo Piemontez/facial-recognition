@@ -20,7 +20,10 @@ public:
     Tester();
 
     virtual std::string name();
+
+    std::vector<cv::Mat> images();
     std::vector<int> labels();
+
     std::vector<cv::Mat> imagesTrain();
     std::vector<cv::Mat> imagesTest();
 
