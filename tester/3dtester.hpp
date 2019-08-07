@@ -6,7 +6,7 @@
 class ThreeDTester : public Tester
 {
 public:
-    ThreeDTester() {}
+    ThreeDTester();
 
     virtual std::string name() override;
 };

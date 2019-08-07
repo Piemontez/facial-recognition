@@ -3,7 +3,7 @@
 #include "imageloader.hpp"
 #include "imageprocessor.hpp"
 
-#include <opencv4/opencv2/core/core.hpp>
+#include "opencv4/opencv2/opencv.hpp"
 
 #include <iostream>
 
@@ -100,5 +100,17 @@ void Tester::run()
     }
 
     std::cout << "  Total de imagens:" << images().size() << std::endl;
+    std::cout << "  Total de pre-processadores:" << preProcessor().size() << std::endl;
 
+    for (auto && img: images()) {
+        cv::imshow("raw", img);
+
+        for (auto && pre: preProcessor()) {
+            img = pre->proccess(img);
+        }
+
+        cv::imshow("allProcess", img);
+    }
+
+    cv::waitKey();
 }

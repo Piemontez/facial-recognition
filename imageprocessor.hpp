@@ -8,7 +8,7 @@ namespace cv {
 class ImageProcessor
 {
 public:
-    virtual cv::Mat process(cv::Mat image) = 0;
+    virtual cv::Mat proccess(cv::Mat &image) = 0;
 };
 
 #endif // IMAGEPROCESSOR_HPP

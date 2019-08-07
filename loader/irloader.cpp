@@ -37,7 +37,7 @@ IrLoader::IrLoader() {
             //coleta primeira imagem frontal
             Json::Value front = *voluntary["front"].begin();
             //endereço imagem frontal
-            std::string dethPath = front["rgb"].asString();
+            std::string dethPath = front["ir_with_bg"].asString();
 
             _files.push_back(rap3dfFolder + dethPath);
             _labels.push_back(uuid);
@@ -76,7 +76,7 @@ std::vector<int> IrLoader::flags()
 
     for (auto && label: _labels)
     {
-        flags.push_back(FRONTAL | RBG);
+        flags.push_back(FRONTAL | IR);
     }
 
     return flags;

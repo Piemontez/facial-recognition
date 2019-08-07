@@ -38,7 +38,7 @@ ThreeLoader::ThreeLoader() {
             //coleta primeira imagem frontal
             Json::Value front = *voluntary["front"].begin();
             //endereço imagem frontal
-            std::string dethPath = front["rgb"].asString();
+            std::string dethPath = front["depth_with_bg"].asString();
 
             _files.push_back(rap3dfFolder + dethPath);
             _labels.push_back(uuid);
@@ -77,7 +77,7 @@ std::vector<int> ThreeLoader::flags()
 
     for (auto && label: _labels)
     {
-        flags.push_back(FRONTAL | RBG);
+        flags.push_back(FRONTAL | DEPTH);
     }
 
     return flags;

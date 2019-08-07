@@ -33,8 +33,9 @@ add_executable(facerecog-tester
         loader/irloader.cpp
         loader/visloader.cpp
 #processadoresimagem
-        processor/3dgaussianblur.cpp
-        processor/posecorretion.cpp)
+        processor/gaussianblur.cpp
+        processor/posecorretion.cpp
+        processor/lbp.cpp)
 
 target_link_libraries(facerecog-tester
   ${OpenCV_LIBS}

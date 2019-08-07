@@ -6,7 +6,7 @@
 class IRTester : public Tester
 {
 public:
-    IRTester() {}
+    IRTester();
 
     virtual std::string name() override;
 };

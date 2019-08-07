@@ -3,9 +3,9 @@
 
 #include "../imageprocessor.hpp"
 
-class ThreeGaussianBlur : public ImageProcessor
+class GaussianBlur : public ImageProcessor
 {
-
+    virtual cv::Mat proccess(cv::Mat &image) override;
 };
 
 #endif // THREEGAUSSIANBLUR_HPP
