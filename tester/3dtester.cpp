@@ -3,12 +3,14 @@
 #include "../loader/3dloader.hpp"
 #include "../processor/gaussianblur.hpp"
 #include "../processor/lbp.hpp"
+#include "../processor/dct.hpp"
 
 ThreeDTester::ThreeDTester() {
     setImageLoader(new ThreeLoader);
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
+    addPreProcessor(new DCT);
 }
 
 std::string ThreeDTester::name()

@@ -3,12 +3,14 @@
 #include "../loader/irloader.hpp"
 #include "../processor/gaussianblur.hpp"
 #include "../processor/lbp.hpp"
+#include "../processor/dct.hpp"
 
 IRTester::IRTester() {
     setImageLoader(new IrLoader);
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
+    addPreProcessor(new DCT);
 }
 
 std::string IRTester::name()

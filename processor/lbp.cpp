@@ -12,9 +12,16 @@ cv::Mat LBP::proccess(cv::Mat &image)
 {
     cv::Mat out;
 
-    cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
-    OLBP_<unsigned char>(image, out);
+    cv::Mat planes[image.channels()];
+    cv::split(image, planes);
 
+    for (int x = 0; x < image.channels(); x++)
+    {
+        OLBP_<unsigned char>(planes[x], out);
+        planes[x] = out;
+    }
+
+    cv::merge(planes, image.channels(), out);
     return out;
 }
 
