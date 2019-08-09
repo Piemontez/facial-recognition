@@ -102,14 +102,30 @@ void Tester::run()
     std::cout << "  Total de imagens:" << images().size() << std::endl;
     std::cout << "  Total de pre-processadores:" << preProcessor().size() << std::endl;
 
+
+    //calcula as permutações
+    std::vector<std::vector<ImageProcessor *>> permutations;
+    std::vector<ImageProcessor *> pres = Tester::preProcessor();
+
+    std::sort(pres.begin(), pres.end());
+    do {
+      permutations.push_back(pres);
+
+      for (auto && item: pres) std::cout << item->name();
+      std::cout << std::endl;
+    } while ( std::next_permutation(pres.begin(), pres.end()) );
+
+
+
     for (auto && img: images()) {
         cv::imshow("raw", img);
 
+        int pos = 0;
         for (auto && pre: preProcessor()) {
             img = pre->proccess(img);
-        }
 
-        cv::imshow("allProcess", img);
+            cv::imshow(std::string("allProcess") + ("" + pos++), img);
+        }
     }
 
     cv::waitKey();
