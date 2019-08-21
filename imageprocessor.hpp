@@ -10,7 +10,7 @@ namespace cv {
 class ImageProcessor
 {
 public:
-    virtual cv::Mat proccess(cv::Mat &image) = 0;
+    virtual cv::Mat proccess(const cv::Mat &image) = 0;
     virtual std::string name() { return "No ImageProcessor Name"; };
 };
 

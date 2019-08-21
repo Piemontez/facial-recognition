@@ -8,7 +8,7 @@ void ELBP_(const cv::Mat& src, cv::Mat& dst, int radius, int neighbors);
 template <typename _Tp>
 void OLBP_(const cv::Mat& src, cv::Mat& dst);
 
-cv::Mat LBP::proccess(cv::Mat &image)
+cv::Mat LBP::proccess(const cv::Mat &image)
 {
     cv::Mat out;
 

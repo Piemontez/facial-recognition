@@ -21,11 +21,13 @@ public:
 
     virtual std::string name();
 
+    virtual void resetTrain(std::vector<cv::Mat> train, std::vector<int> trainLabels) = 0;
+    virtual void train(std::vector<cv::Mat> train, std::vector<int> trainLabels) = 0;
+    virtual int test(cv::Mat test) = 0;
+    virtual bool test(cv::Mat source, cv::Mat targe) = 0;
+
     std::vector<cv::Mat> images();
     std::vector<int> labels();
-
-    std::vector<cv::Mat> imagesTrain();
-    std::vector<cv::Mat> imagesTest();
 
     std::vector<AlgorithmTest*> algorithms();
     void addAlgorithm(AlgorithmTest *test);
@@ -40,6 +42,12 @@ public:
     void saveTest();
     void showResults();
     void run();
+
+private:
+    std::vector<std::vector<ImageProcessor *>> permutations(const std::vector<ImageProcessor *> &processors);
+
+    std::vector<std::vector<int>> leaveOneOutGroups(int imageSize);
+    void testSensitivitiesSpecificity();
 };
 
 #endif // TESTER_HPP

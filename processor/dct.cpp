@@ -2,7 +2,7 @@
 
 #include "opencv4/opencv2/opencv.hpp"
 
-cv::Mat DCT::proccess(cv::Mat &image)
+cv::Mat DCT::proccess(const cv::Mat &image)
 {
     //cv::Mat imagePad(image.rows/2*2, image.cols/2*2, image.type());
     cv::Mat padded;
