@@ -21,7 +21,7 @@ public:
 
     virtual std::string name();
 
-    virtual void resetTrain(std::vector<cv::Mat> train, std::vector<int> trainLabels) = 0;
+    virtual void resetTrain() = 0;
     virtual void train(std::vector<cv::Mat> train, std::vector<int> trainLabels) = 0;
     virtual int test(cv::Mat test) = 0;
     virtual bool test(cv::Mat source, cv::Mat targe) = 0;
@@ -47,7 +47,7 @@ private:
     std::vector<std::vector<ImageProcessor *>> permutations(const std::vector<ImageProcessor *> &processors);
 
     std::vector<std::vector<int>> leaveOneOutGroups(int imageSize);
-    void testSensitivitiesSpecificity();
+    void testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int realLabel, int &VP, int &FP, int &FN, int &VN);
 };
 
 #endif // TESTER_HPP

@@ -104,37 +104,57 @@ void Tester::run()
 
     std::cout << "  Iniciando pré processamento." << std::endl;
     //Percorre as imagens e aplica os pré-processadors por permutação
-    int perm = 0;
+
+    std::vector< std::string > testsNames;
+    std::vector< std::tuple<int, int, int, int> > resultTests; //lista de <VP, FP, FN, VN>;
+
     for (auto && perms: _permutations) {
-        std::cout << "    Pré processamento da permutação:" << ++perm << std::endl;
+        std::cout << "    Realizando pré-processando." << std::endl;
+        std::string testName;
         std::vector<cv::Mat> imgProcessed;
+        std::vector<cv::Mat> _trainImgs, _testImgs;
+        std::vector<int> _trainLabels, _testLabels;
+
+
+        for (auto && pre: perms) {
+            testName.append(" ").append(pre->name());
+        }
+        std::cout << "    Permutação:" << testName << std::endl;
+
         for (auto && img: this->d_ptr->images) {
+            cv::imshow("original", img);
+
             for (auto && pre: perms) {
                 img = pre->proccess(img.clone());
             }
             imgProcessed.push_back(img);
+
+            cv::imshow("processed", img);
+            cv::waitKey(10);
         }
 
         std::cout << "    Separando imagens para trainamento." << std::endl;
-        std::vector<cv::Mat> train, test;
-        std::vector<int> trainLabels, testLabels;
 
-        //realiza um teste para cada grupo
         for (int testPos = 0; testPos < testGroups.size(); testPos++)
         {
             int groupPos = 0;
+            _testImgs.clear();
+            _testLabels.clear();
+            _trainImgs.clear();
+            _trainLabels.clear();
+
             //percorre os grupos de testes e adiciona lista de trainamento ou na lista para testes
             for (auto group: testGroups)
             {
                 if (groupPos == testPos) {
                     for (auto imgPos: group) {
-                        test.push_back(imgProcessed[imgPos]);
-                        testLabels.push_back(this->d_ptr->labels[imgPos]);
+                        _testImgs.push_back(imgProcessed[imgPos]);
+                        _testLabels.push_back(this->d_ptr->labels[imgPos]);
                     }
                 } else {
                     for (auto imgPos: group) {
-                        train.push_back(imgProcessed[imgPos]);
-                        trainLabels.push_back(this->d_ptr->labels[imgPos]);
+                        _trainImgs.push_back(imgProcessed[imgPos]);
+                        _trainLabels.push_back(this->d_ptr->labels[imgPos]);
                     }
                 }
 
@@ -143,10 +163,46 @@ void Tester::run()
                 groupPos++;
             }
 
+            resetTrain();
+            train(_trainImgs, _trainLabels);
+
+            //std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
+            int posTest = 0;
+            int VP = 0, FP = 0, FN = 0, VN = 0;
+            for (auto trainImg: _trainImgs) {
+                testSensitivitiesSpecificity(true,
+                                             test(trainImg),
+                                             _trainLabels[posTest],
+                                             VP, FP, FN, VN);
+            }
+            for (auto testImg: _testImgs) {
+                int realLabel = _testLabels[posTest];
+
+                testSensitivitiesSpecificity(std::find(_trainLabels.begin(), _trainLabels.end(), realLabel) != _trainLabels.end(),
+                                             test(testImg),
+                                             realLabel,
+                                             VP, FP, FN, VN);
+            }
+            posTest = 0;
+            testsNames.push_back(testName);
+            resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
 
+            //std::cout << "    Realizando teste de credenciamento:" << testPos << std::endl;
+            /*
+            posTest = 0;
+            VP = 0; FP = 0; FN = 0; VN = 0;
+            for (auto testImg: _testImgs)
+            {
+                if (test(testImg, testImg) == _testLabels[posTest]) {
+
+                } else {
+
+                }
+                posTest++;
+            }
+            */
         }
-
     }
 }
 
@@ -205,7 +261,23 @@ std::vector<std::vector<int> > Tester::leaveOneOutGroups(int imageSize)
     return res;
 }
 
-void Tester::testSensitivitiesSpecificity()
+void Tester::testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int realLabel, int &VP, int &FP, int &FN, int &VN)
 {
-
+    if (inTrain) {
+        if (predictedLabel == realLabel) {
+            VP++;
+        } else if (predictedLabel == -1) {
+            FN++;
+        } else {
+            FP++;
+        }
+    } else {
+        if (predictedLabel == realLabel) {
+            VP++;
+        } else if (predictedLabel == -1) {
+            VN++;
+        } else {
+            FP++;
+        }
+    }
 }
