@@ -12,7 +12,7 @@ VisTester::VisTester() {
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
-    //addPreProcessor(new DCT);
+    addPreProcessor(new DCT);
 }
 
 std::string VisTester::name()

@@ -39,10 +39,12 @@ public:
     void setImageLoader(ImageLoader *processor);
 
     void selectAndLoadImages();
-    void saveTest();
-    void showResults();
     void run();
 
+    void saveTest();
+    void showResults(std::vector<std::string> recogsNames,
+                     std::vector<std::string> processorsNames,
+                     std::vector<std::tuple<int, int, int, int> > resultTests);
 private:
     std::vector<std::vector<ImageProcessor *>> permutations(const std::vector<ImageProcessor *> &processors);
 

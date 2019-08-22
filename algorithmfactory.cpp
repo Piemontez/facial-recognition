@@ -30,7 +30,7 @@ std::vector<Recognizer *> AlgorithmFactory::createAllAlgorithm()
 {
     std::vector<Recognizer *> rs;
     rs.push_back(new PCA);
-    //rs.push_back(new LDA);
+    rs.push_back(new LDA);
     return rs;
 }
 

@@ -12,7 +12,7 @@ IRTester::IRTester() {
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
-    //addPreProcessor(new DCT);
+    addPreProcessor(new DCT);
 }
 
 std::string IRTester::name()

@@ -1,12 +1,6 @@
 #include "pca.hpp"
 
-#include "../loader/3dloader.hpp"
-#include "../processor/gaussianblur.hpp"
-#include "../processor/lbp.hpp"
-#include "../processor/dct.hpp"
-
 #include "opencv4/opencv2/opencv.hpp"
-//#include "opencv4/opencv2/face/facerec.hpp"
 
 PCA::PCA()
 {

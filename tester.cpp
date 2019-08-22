@@ -99,30 +99,30 @@ void Tester::run()
     std::vector<std::vector<int>> testGroups = leaveOneOutGroups(images().size());
     std::vector<Recognizer *> recogs = AlgorithmFactory::instance()->createAllAlgorithm();
 
-    std::cout << "  Total de permutações:" << _permutations.size() << std::endl;
+    std::cout << "    Total de permutações:" << _permutations.size() << std::endl;
     std::cout << "  Total de testes por permutação:" << testGroups.size() << std::endl;
     std::cout << "  Total de amostras por teste:" << (testGroups.size() ? (images().size() / testGroups.size()) : 0) << std::endl;
-    std::cout << "  Total de permutações:" << _permutations.size() << std::endl;
     std::cout << "  Total de reconhecedores:" << recogs.size() << std::endl;
 
     std::cout << "  Iniciando pré processamento." << std::endl;
     //Percorre as imagens e aplica os pré-processadors por permutação
 
-    std::vector< std::string > testsNames;
+    std::vector< std::string > recogsNames;
+    std::vector< std::string > processorsNames;
     std::vector< std::tuple<int, int, int, int> > resultTests; //lista de <VP, FP, FN, VN>;
 
     for (auto && perms: _permutations) {
         std::cout << "    Realizando pré-processando." << std::endl;
-        std::string testName;
+        std::string processorName;
         std::vector<cv::Mat> imgProcessed;
         std::vector<cv::Mat> _trainImgs, _testImgs;
         std::vector<int> _trainLabels, _testLabels;
 
 
         for (auto && pre: perms) {
-            testName.append(" ").append(pre->name());
+            processorName.append(" ").append(pre->name());
         }
-        std::cout << "    Permutação:" << testName << std::endl;
+        std::cout << "    Permutação:" << processorName << std::endl;
 
         for (auto img: this->d_ptr->images) {
             cv::imshow("original", img);
@@ -130,13 +130,13 @@ void Tester::run()
             for (auto && pre: perms) {
                 img = pre->proccess(img.clone());
             }
-            //cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+            cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
 
             imgProcessed.push_back(img);
 
 
             cv::imshow("processed", img);
-            cv::waitKey(5);
+            cv::waitKey(3);
         }
 
 
@@ -182,7 +182,9 @@ void Tester::run()
                                                  recog->predict(trainImg),
                                                  _trainLabels[posTest],
                                                  VP, FP, FN, VN);
+                    posTest++;
                 }
+                posTest = 0;
                 for (auto testImg: _testImgs) {
                     int realLabel = _testLabels[posTest];
 
@@ -190,11 +192,12 @@ void Tester::run()
                                                  recog->predict(testImg),
                                                  realLabel,
                                                  VP, FP, FN, VN);
+                    posTest++;
                 }
-                posTest = 0;
-                testsNames.push_back(testName);
-                resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
+                recogsNames.push_back(recog->algorithmName());
+                processorsNames.push_back(processorName);
+                resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
                 //std::cout << "    Realizando teste de credenciamento:" << testPos << std::endl;
                 /*
@@ -210,9 +213,14 @@ void Tester::run()
                     posTest++;
                 }
                 */
+
+                //recog->algorithmName();
+                //testName
             }
         }
     }
+
+    showResults(recogsNames, processorsNames, resultTests);
 }
 
 /**
@@ -288,5 +296,40 @@ void Tester::testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int 
         } else {
             FP++;
         }
+    }
+}
+
+
+
+void Tester::saveTest()
+{
+
+}
+
+void Tester::showResults(std::vector< std::string > recogsNames, std::vector< std::string > processorsNames, std::vector< std::tuple<int, int, int, int> > resultTests)
+{
+    std::cout << "<-- Resultados -->" << std::endl;
+
+    int VP, FP, FN, VN;
+
+    auto itRecogs = recogsNames.begin();
+    auto itProcs = processorsNames.begin();
+    auto itResults = resultTests.begin();
+
+    while (itRecogs != recogsNames.end()) {
+        auto recogName = *itRecogs;
+        auto procName  = *itProcs;
+        auto results   = *itResults;
+
+        std::tie(VP, FP, FN, VN) = results;
+
+        std::cout << procName << " "
+                  << recogName << " : "
+                  << VP << " " << FP << " " << FN << " " << VN
+                  << std::endl;
+
+        itRecogs++;
+        itProcs++;
+        itResults++;
     }
 }

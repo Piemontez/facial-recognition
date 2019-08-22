@@ -12,7 +12,7 @@ ThreeDTester::ThreeDTester() {
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
-    //addPreProcessor(new DCT);
+    addPreProcessor(new DCT);
 }
 
 std::string ThreeDTester::name()
