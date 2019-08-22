@@ -11,7 +11,7 @@ IRTester::IRTester() {
     setImageLoader(new IrLoader);
 
     addPreProcessor(new GaussianBlur);
-    //addPreProcessor(new LBP);
+    addPreProcessor(new LBP);
     //addPreProcessor(new DCT);
 }
 

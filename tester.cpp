@@ -124,7 +124,7 @@ void Tester::run()
         }
         std::cout << "    Permutação:" << testName << std::endl;
 
-        for (auto && img: this->d_ptr->images) {
+        for (auto img: this->d_ptr->images) {
             cv::imshow("original", img);
 
             for (auto && pre: perms) {
@@ -133,12 +133,12 @@ void Tester::run()
             imgProcessed.push_back(img);
 
             cv::imshow("processed", img);
-            cv::waitKey(10);
+            cv::waitKey(5);
         }
 
 
         for (auto && recog: recogs) {
-            std::cout << "    <" << recog->algorithmName() << ">" << std::endl;
+            std::cout << "    Reconhecedor: " << recog->algorithmName() << std::endl;
             std::cout << "    Separando imagens para trainamento." << std::endl;
 
             for (int testPos = 0; testPos < testGroups.size(); testPos++)
