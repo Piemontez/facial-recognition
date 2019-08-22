@@ -2,15 +2,14 @@
 #define PCA_HPP
 
 #include "../facerecognizer.hpp"
-#ifdef HASCONTRIB
-#include "opencv4/opencv2/contrib/contrib.hpp"
-#endif
+#include "opencv4/opencv2/face.hpp"
 
 class PCA: public Recognizer {
-#ifdef HASCONTRIB
-    cv::Ptr<FaceRecognizer> model;
-#endif
+    cv::Ptr<cv::face::FaceRecognizer> model;
+
 public:
+    PCA();
+
     std::string algorithmName() override;
 
     void train(const std::vector<cv::Mat> &images, const std::vector<int> &labels) override;

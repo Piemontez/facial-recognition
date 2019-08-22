@@ -256,10 +256,10 @@ std::vector<std::vector<int> > Tester::leaveOneOutGroups(int imageSize)
     int imagesPerGroup = imageSize / d_ptr->leaveOneOutGroupSize;
 
     for (int start = 0; start < d_ptr->leaveOneOutGroupSize; start++) {
-        std::vector<int>::iterator begin = sorted.begin() + (start * d_ptr->leaveOneOutGroupSize);
-        std::vector<int>::iterator end = (start * d_ptr->leaveOneOutGroupSize) > sorted.size()
+        std::vector<int>::iterator begin = sorted.begin() + (start * imagesPerGroup);
+        std::vector<int>::iterator end = ((1+start) * imagesPerGroup) > sorted.size()
                 ? sorted.end()
-                : sorted.begin() + (start * d_ptr->leaveOneOutGroupSize);
+                : sorted.begin() + ((1+start) * imagesPerGroup);
 
         res.push_back(std::vector<int> ( begin, end ));
     }

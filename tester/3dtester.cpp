@@ -13,9 +13,6 @@ ThreeDTester::ThreeDTester() {
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
     //addPreProcessor(new DCT);
-#ifdef HASCONTRIB
-    model = cv::createEigenFaceRecognizer();
-#endif
 }
 
 std::string ThreeDTester::name()

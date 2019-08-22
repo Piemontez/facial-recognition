@@ -17,8 +17,6 @@ add_compile_definitions(PREPROCESSOR_FOLDER="")
 add_compile_definitions(RECOGNIZER_FOLDER="")
 add_compile_definitions(TESTER_FOLDER="")
 
-#add_definitions(-DHASCONTRIB)
-
 
 #file to builder
 add_executable(facerecog-tester

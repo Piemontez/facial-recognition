@@ -6,6 +6,13 @@
 #include "../processor/dct.hpp"
 
 #include "opencv4/opencv2/opencv.hpp"
+//#include "opencv4/opencv2/face/facerec.hpp"
+
+PCA::PCA()
+{
+    model = cv::face::EigenFaceRecognizer::create();
+    //model = cv::face::createFacemarkAAM();
+}
 
 std::string PCA::algorithmName()
 {
@@ -14,9 +21,7 @@ std::string PCA::algorithmName()
 
 void PCA::train(const std::vector<cv::Mat> &train, const std::vector<int> &trainLabels)
 {
-#ifdef HASCONTRIB
     model->train(train, trainLabels);
-#endif
 }
 
 void PCA::resetTrain()
@@ -26,16 +31,13 @@ void PCA::resetTrain()
 
 void PCA::predict(const cv::Mat &image, int &label, int &confidence)
 {
-#ifdef HASCONTRIB
-    model->predict(image, label, confidence);
-#endif
+    throw "PCA::predict";
+    //model->predict(image, label, confidence);
 }
 
 int PCA::predict(const cv::Mat &image)
 {
-#ifdef HASCONTRIB
-    return model->predict(test);
-#endif
+    return model->predict(image);
 }
 
 int PCA::compare(const cv::Mat &source, const cv::Mat &targe)
