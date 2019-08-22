@@ -13,30 +13,12 @@ ThreeDTester::ThreeDTester() {
     addPreProcessor(new GaussianBlur);
     //addPreProcessor(new LBP);
     //addPreProcessor(new DCT);
+#ifdef HASCONTRIB
+    model = cv::createEigenFaceRecognizer();
+#endif
 }
 
 std::string ThreeDTester::name()
 {
     return "3D Tester";
-}
-
-
-void ThreeDTester::resetTrain()
-{
-
-}
-
-void ThreeDTester::train(std::vector<cv::Mat> train, std::vector<int> trainLabels)
-{
-
-}
-
-int ThreeDTester::test(cv::Mat test)
-{
-    return -1;
-}
-
-bool ThreeDTester::test(cv::Mat source, cv::Mat targe)
-{
-    return false;
 }

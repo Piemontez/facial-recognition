@@ -17,12 +17,13 @@ add_compile_definitions(PREPROCESSOR_FOLDER="")
 add_compile_definitions(RECOGNIZER_FOLDER="")
 add_compile_definitions(TESTER_FOLDER="")
 
+#add_definitions(-DHASCONTRIB)
+
 
 #file to builder
 add_executable(facerecog-tester
 	main.cpp
-	algorithmfactory.cpp
-	algorithmtest.cpp
+        algorithmfactory.cpp
         tester.cpp
 #testadores
         tester/3dtester.cpp
@@ -36,7 +37,11 @@ add_executable(facerecog-tester
         processor/gaussianblur.cpp
         processor/posecorretion.cpp
         processor/lbp.cpp
-        processor/dct.cpp)
+        processor/dct.cpp
+#reconhecedores
+        recognizer/pca.cpp
+        recognizer/lda.cpp
+        )
 
 target_link_libraries(facerecog-tester
   ${OpenCV_LIBS}

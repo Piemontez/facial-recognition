@@ -21,10 +21,10 @@ public:
 
     virtual std::string name();
 
-    virtual void resetTrain() = 0;
-    virtual void train(std::vector<cv::Mat> train, std::vector<int> trainLabels) = 0;
-    virtual int test(cv::Mat test) = 0;
-    virtual bool test(cv::Mat source, cv::Mat targe) = 0;
+    //virtual void resetTrain() = 0;
+    //virtual void train(std::vector<cv::Mat> train, std::vector<int> trainLabels) = 0;
+    //virtual int test(cv::Mat test) = 0;
+    //virtual bool test(cv::Mat source, cv::Mat targe) = 0;
 
     std::vector<cv::Mat> images();
     std::vector<int> labels();

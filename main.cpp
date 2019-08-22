@@ -1,6 +1,4 @@
 #include "tester.hpp"
-#include "algorithmtest.hpp"
-#include "facerecognizer.hpp"
 
 #include "tester/3dtester.hpp"
 #include "tester/irtester.hpp"

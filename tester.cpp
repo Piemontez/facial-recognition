@@ -1,5 +1,6 @@
 #include "tester.hpp"
-#include "algorithmtest.hpp"
+#include "facerecognizer.hpp"
+#include "algorithmfactory.hpp"
 #include "imageloader.hpp"
 #include "imageprocessor.hpp"
 
@@ -96,11 +97,13 @@ void Tester::run()
 
     std::vector<std::vector<ImageProcessor *>> _permutations = permutations(preProcessor());
     std::vector<std::vector<int>> testGroups = leaveOneOutGroups(images().size());
+    std::vector<Recognizer *> recogs = AlgorithmFactory::instance()->createAllAlgorithm();
 
     std::cout << "  Total de permutações:" << _permutations.size() << std::endl;
     std::cout << "  Total de testes por permutação:" << testGroups.size() << std::endl;
     std::cout << "  Total de amostras por teste:" << (testGroups.size() ? (images().size() / testGroups.size()) : 0) << std::endl;
     std::cout << "  Total de permutações:" << _permutations.size() << std::endl;
+    std::cout << "  Total de reconhecedores:" << recogs.size() << std::endl;
 
     std::cout << "  Iniciando pré processamento." << std::endl;
     //Percorre as imagens e aplica os pré-processadors por permutação
@@ -133,75 +136,78 @@ void Tester::run()
             cv::waitKey(10);
         }
 
-        std::cout << "    Separando imagens para trainamento." << std::endl;
 
-        for (int testPos = 0; testPos < testGroups.size(); testPos++)
-        {
-            int groupPos = 0;
-            _testImgs.clear();
-            _testLabels.clear();
-            _trainImgs.clear();
-            _trainLabels.clear();
+        for (auto && recog: recogs) {
+            std::cout << "    <" << recog->algorithmName() << ">" << std::endl;
+            std::cout << "    Separando imagens para trainamento." << std::endl;
 
-            //percorre os grupos de testes e adiciona lista de trainamento ou na lista para testes
-            for (auto group: testGroups)
+            for (int testPos = 0; testPos < testGroups.size(); testPos++)
             {
-                if (groupPos == testPos) {
-                    for (auto imgPos: group) {
-                        _testImgs.push_back(imgProcessed[imgPos]);
-                        _testLabels.push_back(this->d_ptr->labels[imgPos]);
+                int groupPos = 0;
+                _testImgs.clear();
+                _testLabels.clear();
+                _trainImgs.clear();
+                _trainLabels.clear();
+
+                //percorre os grupos de testes e adiciona lista de trainamento ou na lista para testes
+                for (auto group: testGroups) {
+                    if (groupPos == testPos) {
+                        for (auto imgPos: group) {
+                            _testImgs.push_back(imgProcessed[imgPos]);
+                            _testLabels.push_back(this->d_ptr->labels[imgPos]);
+                        }
+                    } else {
+                        for (auto imgPos: group) {
+                            _trainImgs.push_back(imgProcessed[imgPos]);
+                            _trainLabels.push_back(this->d_ptr->labels[imgPos]);
+                        }
                     }
-                } else {
-                    for (auto imgPos: group) {
-                        _trainImgs.push_back(imgProcessed[imgPos]);
-                        _trainLabels.push_back(this->d_ptr->labels[imgPos]);
-                    }
+
+
+
+                    groupPos++;
                 }
 
+                recog->resetTrain();
+                recog->train(_trainImgs, _trainLabels);
 
-
-                groupPos++;
-            }
-
-            resetTrain();
-            train(_trainImgs, _trainLabels);
-
-            //std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
-            int posTest = 0;
-            int VP = 0, FP = 0, FN = 0, VN = 0;
-            for (auto trainImg: _trainImgs) {
-                testSensitivitiesSpecificity(true,
-                                             test(trainImg),
-                                             _trainLabels[posTest],
-                                             VP, FP, FN, VN);
-            }
-            for (auto testImg: _testImgs) {
-                int realLabel = _testLabels[posTest];
-
-                testSensitivitiesSpecificity(std::find(_trainLabels.begin(), _trainLabels.end(), realLabel) != _trainLabels.end(),
-                                             test(testImg),
-                                             realLabel,
-                                             VP, FP, FN, VN);
-            }
-            posTest = 0;
-            testsNames.push_back(testName);
-            resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
-
-
-            //std::cout << "    Realizando teste de credenciamento:" << testPos << std::endl;
-            /*
-            posTest = 0;
-            VP = 0; FP = 0; FN = 0; VN = 0;
-            for (auto testImg: _testImgs)
-            {
-                if (test(testImg, testImg) == _testLabels[posTest]) {
-
-                } else {
-
+                //std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
+                int posTest = 0;
+                int VP = 0, FP = 0, FN = 0, VN = 0;
+                for (auto trainImg: _trainImgs) {
+                    testSensitivitiesSpecificity(true,
+                                                 recog->predict(trainImg),
+                                                 _trainLabels[posTest],
+                                                 VP, FP, FN, VN);
                 }
-                posTest++;
+                for (auto testImg: _testImgs) {
+                    int realLabel = _testLabels[posTest];
+
+                    testSensitivitiesSpecificity(std::find(_trainLabels.begin(), _trainLabels.end(), realLabel) != _trainLabels.end(),
+                                                 recog->predict(testImg),
+                                                 realLabel,
+                                                 VP, FP, FN, VN);
+                }
+                posTest = 0;
+                testsNames.push_back(testName);
+                resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
+
+
+                //std::cout << "    Realizando teste de credenciamento:" << testPos << std::endl;
+                /*
+                posTest = 0;
+                VP = 0; FP = 0; FN = 0; VN = 0;
+                for (auto testImg: _testImgs)
+                {
+                    if (test(testImg, testImg) == _testLabels[posTest]) {
+
+                    } else {
+
+                    }
+                    posTest++;
+                }
+                */
             }
-            */
         }
     }
 }

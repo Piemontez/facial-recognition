@@ -4,16 +4,19 @@
 #include <string>
 #include <vector>
 
-class AlgorithmTest;
+class Recognizer;
 
 class AlgorithmFactory
 {
-public:
+    static AlgorithmFactory *inst;
     AlgorithmFactory();
+public:
+    static AlgorithmFactory *instance();
 
-    std::vector<std::string> listAlgorithms();
-    AlgorithmTest* createAlgorithm(std::string name);
+    /*std::vector<std::string> listAlgorithms();
+    Recognizer* createAlgorithm(std::string name);*/
 
+    std::vector<Recognizer *> createAllAlgorithm();
 };
 
 #endif // ALGORITHMFACTORY_HPP

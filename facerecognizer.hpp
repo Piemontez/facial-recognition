@@ -11,9 +11,8 @@ namespace cv {
 /*!
  * \brief The FaceRecognizer class
  */
-class FaceRecognizer {
+class Recognizer {
 public:
-    virtual ~FaceRecognizer() = 0;
 
     /*!
      * \brief algorithmName retorna o nome do algorítmo. Utilizado na localização da técnica pelo algorithmFactory
@@ -27,6 +26,11 @@ public:
      * \param labels
      */
     virtual void train(const std::vector<cv::Mat> &images, const std::vector<int> &labels) = 0;
+
+    /**
+     * @brief resetTrain
+     */
+    virtual void resetTrain() = 0;
 
     /*!
      * \brief predict

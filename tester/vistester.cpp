@@ -19,23 +19,3 @@ std::string VisTester::name()
 {
     return "VIS Tester";
 }
-
-void VisTester::resetTrain()
-{
-
-}
-
-void VisTester::train(std::vector<cv::Mat> train, std::vector<int> trainLabels)
-{
-
-}
-
-int VisTester::test(cv::Mat test)
-{
-    return -1;
-}
-
-bool VisTester::test(cv::Mat source, cv::Mat targe)
-{
-    return false;
-}
