@@ -130,7 +130,10 @@ void Tester::run()
             for (auto && pre: perms) {
                 img = pre->proccess(img.clone());
             }
+            //cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+
             imgProcessed.push_back(img);
+
 
             cv::imshow("processed", img);
             cv::waitKey(5);
