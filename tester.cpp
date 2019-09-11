@@ -4,9 +4,9 @@
 #include "imageloader.hpp"
 #include "imageprocessor.hpp"
 
-#include "opencv4/opencv2/opencv.hpp"
-
 #include <iostream>
+#include <map>
+#include <opencv4/opencv2/opencv.hpp>
 
 struct TesterPrivate {
     int leaveOneOutGroupSize{5};
@@ -111,6 +111,7 @@ void Tester::run()
     std::vector< std::string > processorsNames;
     std::vector< std::tuple<int, int, int, int> > resultTests; //lista de <VP, FP, FN, VN>;
 
+    //percorre as permutações de pré processamento
     for (auto && perms: _permutations) {
         std::cout << "    Realizando pré-processando." << std::endl;
         std::string processorName;
@@ -124,6 +125,7 @@ void Tester::run()
         }
         std::cout << "    Permutação:" << processorName << std::endl;
 
+        //Realiza os pré-processamentos da imagem
         for (auto img: this->d_ptr->images) {
             cv::imshow("original", img);
 
@@ -134,12 +136,11 @@ void Tester::run()
 
             imgProcessed.push_back(img);
 
-
             cv::imshow("processed", img);
-            cv::waitKey(3);
+            //cv::waitKey();
         }
 
-
+        //Percorre os algorítmos de reconhecimento e realiza os testes de reconhecimento
         for (auto && recog: recogs) {
             std::cout << "    Reconhecedor: " << recog->algorithmName() << std::endl;
             std::cout << "    Separando imagens para trainamento." << std::endl;
@@ -152,7 +153,7 @@ void Tester::run()
                 _trainImgs.clear();
                 _trainLabels.clear();
 
-                //percorre os grupos de testes e adiciona lista de trainamento ou na lista para testes
+                //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
                 for (auto group: testGroups) {
                     if (groupPos == testPos) {
                         for (auto imgPos: group) {
@@ -165,9 +166,6 @@ void Tester::run()
                             _trainLabels.push_back(this->d_ptr->labels[imgPos]);
                         }
                     }
-
-
-
                     groupPos++;
                 }
 
@@ -195,6 +193,7 @@ void Tester::run()
                     posTest++;
                 }
 
+                //Contabiliza o teste
                 recogsNames.push_back(recog->algorithmName());
                 processorsNames.push_back(processorName);
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
@@ -308,9 +307,11 @@ void Tester::saveTest()
 
 void Tester::showResults(std::vector< std::string > recogsNames, std::vector< std::string > processorsNames, std::vector< std::tuple<int, int, int, int> > resultTests)
 {
-    std::cout << "<-- Resultados -->" << std::endl;
+    std::cout << "<-- All Resultados -->" << std::endl;
 
-    int VP, FP, FN, VN;
+    std::map< std::string, std::tuple<int, int, int, int, int> > medias;
+
+    int VP, FP, FN, VN, testes;
 
     auto itRecogs = recogsNames.begin();
     auto itProcs = processorsNames.begin();
@@ -323,13 +324,33 @@ void Tester::showResults(std::vector< std::string > recogsNames, std::vector< st
 
         std::tie(VP, FP, FN, VN) = results;
 
-        std::cout << procName << " "
-                  << recogName << " : "
-                  << VP << " " << FP << " " << FN << " " << VN
-                  << std::endl;
+        std::string testName = "<" + procName + " > " + recogName;
+
+        if (medias.find(testName)  == medias.end()) {
+            medias[testName] = std::make_tuple(VP, FP, FN, VN, 1);
+        } else {
+            std::get<0>(medias[testName]) += VP;
+            std::get<1>(medias[testName]) += FP;
+            std::get<2>(medias[testName]) += FN;
+            std::get<3>(medias[testName]) += VN;
+            std::get<4>(medias[testName]) += 1;
+        }
+
+        std::cout << testName << " : " << VP << " " << FP << " " << FN << " " << VN << std::endl;
 
         itRecogs++;
         itProcs++;
         itResults++;
     }
+
+    std::cout << "<-- Avarage Resultados -->" << std::endl;
+    std::map< std::string, std::tuple<int, int, int, int, int> >::iterator itMedia = medias.begin();
+    while (itMedia != medias.end()) {
+        std::tie(VP, FP, FN, VN, testes) = itMedia->second;
+
+        std::cout << itMedia->first << " : " << (VP/testes) << " " << (FP/testes) << " " << (FN/testes) << " " << (VN/testes) <<  std::endl;
+
+        itMedia++;
+    }
+
 }

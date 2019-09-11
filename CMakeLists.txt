@@ -6,6 +6,8 @@ project(FacialRecognition)
 #dependencies
 find_package( OpenCV REQUIRED )
 
+#find_package(TensorFlow REQUIRED)
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP jsoncpp)
 
@@ -39,10 +41,15 @@ add_executable(facerecog-tester
 #reconhecedores
         recognizer/pca.cpp
         recognizer/lda.cpp
+        recognizer/svm.cpp
         )
 
 target_link_libraries(facerecog-tester
   ${OpenCV_LIBS}
-  ${JSONCPP_LIBRARIES})
+  ${JSONCPP_LIBRARIES}
+  tensorflow
+  #tensorflow_cc
+  #tensorflow_framework
+  )
 
 install(TARGETS facerecog-tester DESTINATION bin)
