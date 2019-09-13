@@ -3,6 +3,7 @@
 
 #include "recognizer/pca.hpp"
 #include "recognizer/lda.hpp"
+#include "recognizer/svm.hpp"
 
 AlgorithmFactory::AlgorithmFactory()
 {
@@ -29,8 +30,9 @@ Recognizer *AlgorithmFactory::createAlgorithm(std::string name)
 std::vector<Recognizer *> AlgorithmFactory::createAllAlgorithm()
 {
     std::vector<Recognizer *> rs;
-    rs.push_back(new PCA);
+    rs.push_back(new SVMOpenCV);
     rs.push_back(new LDA);
+    rs.push_back(new PCA);
     return rs;
 }
 
