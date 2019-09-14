@@ -42,6 +42,7 @@ add_executable(facerecog-tester
         recognizer/pca.cpp
         recognizer/lda.cpp
         recognizer/svm.cpp
+        recognizer/lpp.cpp
         )
 
 target_link_libraries(facerecog-tester
