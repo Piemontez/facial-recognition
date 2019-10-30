@@ -1,5 +1,5 @@
-#ifndef ICP_HPP
-#define ICP_HPP
+#ifndef GANPAN_HPP
+#define GANPAN_HPP
 
 #include "../imageprocessor.hpp"
 
@@ -10,13 +10,11 @@ namespace cv {
 /**
  * @brief The Iterative closest point
  */
-class ICP : public ImageProcessor
+class GanPan : public ImageProcessor
 {
 public:
-    ICP(cv::Mat *frontalFace);
-
     virtual cv::Mat proccess(const cv::Mat &image) override;
-    virtual std::string name() override { return "ICP"; };
+    virtual std::string name() override { return "GanPan"; };
 };
 
-#endif // ICP_HPP
+#endif // GANPAN_HPP

@@ -9,9 +9,10 @@
 #include "opencv4/opencv2/opencv.hpp"
 
 ThreeDTester::ThreeDTester() {
-    setImageLoader(new ThreeLoader);
+    auto imgLoader = new ThreeLoader;
+    setImageLoader(imgLoader);
 
-    addPreProcessor(new PoseCorrection, 0);
+    addPreProcessor(new PoseCorrection(imgLoader), 0);
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);

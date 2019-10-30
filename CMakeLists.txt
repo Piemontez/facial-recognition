@@ -44,6 +44,7 @@ add_executable(facerecog-tester
     recognizer/svm.cpp
     recognizer/lpp.cpp
 #libs
+    libs/ganpan.cpp
     libs/afm.cpp
     libs/icp.cpp
 )
