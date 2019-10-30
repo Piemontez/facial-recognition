@@ -1,6 +1,7 @@
 #include "3dtester.hpp"
 
 #include "../loader/3dloader.hpp"
+#include "../processor/posecorretion.hpp"
 #include "../processor/gaussianblur.hpp"
 #include "../processor/lbp.hpp"
 #include "../processor/dct.hpp"
@@ -9,6 +10,8 @@
 
 ThreeDTester::ThreeDTester() {
     setImageLoader(new ThreeLoader);
+
+    addPreProcessor(new PoseCorrection, 0);
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);

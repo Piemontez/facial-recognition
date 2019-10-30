@@ -1,7 +1,7 @@
 #ifndef IMAGELOADER_HPP
 #define IMAGELOADER_HPP
 
-#include "vector";
+#include "vector"
 
 namespace cv {
     class Mat;
@@ -15,10 +15,16 @@ enum ImageLoaderFlags {
     DOWN    = 16,
     RANDOM  = 32,
 
+    RECOG_TRAIN   = 64,
+    RECOG_TEST    = 128,
+    COMPARE_MAIN_TRAIN  = 256,
+    COMPARE_TRAIN       = 512, //Trained with COMPARE_MAIN_TRAIN
+    COMPARE_TEST        = 1024,
 
-    RBG   = 1024,
-    IR    = 2048,
-    DEPTH = 4096,
+
+    RBG   = 2048,
+    IR    = 4096,
+    DEPTH = 8192,
 };
 
 class ImageLoader

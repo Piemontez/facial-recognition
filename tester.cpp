@@ -13,8 +13,10 @@ struct TesterPrivate {
 
     std::vector<cv::Mat> images;
     std::vector<int> labels;
+    std::vector<int> flags;
 
     std::vector<AlgorithmTest*> tester;
+    std::vector<ImageProcessor *> imgsProcessorOrdered;
     std::vector<ImageProcessor *> imgsProcessor;
     ImageLoader *imgLoader{nullptr};
 };
@@ -49,14 +51,22 @@ void Tester::addAlgorithm(AlgorithmTest *test)
     d_ptr->tester.push_back(test);
 }
 
-std::vector<ImageProcessor *> Tester::preProcessor()
+std::vector<ImageProcessor *> Tester::preProcessors()
 {
-    return d_ptr->imgsProcessor;
+    std::vector<ImageProcessor *> rs;
+
+    rs.insert(rs.begin(), d_ptr->imgsProcessorOrdered.begin(), d_ptr->imgsProcessorOrdered.end());
+    rs.insert(rs.begin(), d_ptr->imgsProcessor.begin(), d_ptr->imgsProcessor.end());
+
+    return rs;
 }
 
-void Tester::addPreProcessor(ImageProcessor *processor)
+void Tester::addPreProcessor(ImageProcessor *processor, int fixedOrder)
 {
-    d_ptr->imgsProcessor.push_back(processor);
+    if (fixedOrder != -1)
+        d_ptr->imgsProcessorOrdered.push_back(processor);
+    else
+        d_ptr->imgsProcessor.push_back(processor);
 }
 
 ImageLoader *Tester::imageLoader()
@@ -78,6 +88,7 @@ void Tester::run()
     if (imageLoader()) {
         this->d_ptr->images = imageLoader()->images();
         this->d_ptr->labels = imageLoader()->labels();
+        this->d_ptr->flags = imageLoader()->flags();
     }
 
     if (!images().size()){
@@ -93,13 +104,15 @@ void Tester::run()
     }
 
     std::cout << "  Total de imagens:" << images().size() << std::endl;
-    std::cout << "  Total de pre-processadores:" << preProcessor().size() << std::endl;
+    std::cout << "  Total de pre-processadores:" << preProcessors().size() << std::endl;
 
-    std::vector<std::vector<ImageProcessor *>> _permutations = permutations(preProcessor());
-    std::vector<std::vector<int>> testGroups = leaveOneOutGroups(images().size());
+    std::vector<std::vector<ImageProcessor *>> _permutations = permutations(
+                d_ptr->imgsProcessorOrdered,
+                d_ptr->imgsProcessor);
+    std::vector<std::vector<int>> testGroups = leaveOneOutGroups();
     std::vector<Recognizer *> recogs = AlgorithmFactory::instance()->createAllAlgorithm();
 
-    std::cout << "    Total de permutações:" << _permutations.size() << std::endl;
+    std::cout << "  Total de permutações:" << _permutations.size() << std::endl;
     std::cout << "  Total de testes por permutação:" << testGroups.size() << std::endl;
     std::cout << "  Total de amostras por teste:" << (testGroups.size() ? (images().size() / testGroups.size()) : 0) << std::endl;
     std::cout << "  Total de reconhecedores:" << recogs.size() << std::endl;
@@ -116,8 +129,10 @@ void Tester::run()
         std::cout << "    Realizando pré-processando." << std::endl;
         std::string processorName;
         std::vector<cv::Mat> imgProcessed;
-        std::vector<cv::Mat> _trainImgs, _testImgs;
-        std::vector<int> _trainLabels, _testLabels;
+        std::vector<cv::Mat> _recogTrainImgs, _recogTestImgs, _compareTestImgs;
+        std::vector<int> _recogTrainLabels, _recogTestLabels, _compareTestLabels;
+        std::vector<std::tuple<cv::Mat, cv::Mat>> _compareTrainImgs;
+        std::vector<int> _compareTrainLabels;
 
 
         for (auto && pre: perms) {
@@ -127,7 +142,7 @@ void Tester::run()
 
         //Realiza os pré-processamentos da imagem
         for (auto img: this->d_ptr->images) {
-            cv::imshow("original", img);
+            //cv::imshow("original", img);
 
             for (auto && pre: perms) {
                 img = pre->proccess(img.clone());
@@ -136,9 +151,13 @@ void Tester::run()
 
             imgProcessed.push_back(img);
 
-            cv::imshow("processed", img);
+            //cv::imshow("processed", img);
             //cv::waitKey();
         }
+
+        continue;
+        //Todo: remover para inicar treinamento
+
 
         //Percorre os algorítmos de reconhecimento e realiza os testes de reconhecimento
         for (auto && recog: recogs) {
@@ -148,45 +167,49 @@ void Tester::run()
             for (int testPos = 0; testPos < testGroups.size(); testPos++)
             {
                 int groupPos = 0;
-                _testImgs.clear();
-                _testLabels.clear();
-                _trainImgs.clear();
-                _trainLabels.clear();
+                _recogTrainImgs.clear();
+                _recogTrainLabels.clear();
+                _recogTestImgs.clear();
+                _recogTestLabels.clear();
+                _compareTrainImgs.clear();
+                _compareTrainLabels.clear();
+                _compareTestImgs.clear();
+                _compareTestLabels.clear();
 
                 //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
-                for (auto group: testGroups) {
+                for (auto labels: testGroups) {
                     if (groupPos == testPos) {
-                        for (auto imgPos: group) {
-                            _testImgs.push_back(imgProcessed[imgPos]);
-                            _testLabels.push_back(this->d_ptr->labels[imgPos]);
+                        for (auto imgPos: labels) {
+                            _recogTestImgs.push_back(imgProcessed[imgPos]);
+                            _recogTestLabels.push_back(this->d_ptr->labels[imgPos]);
                         }
                     } else {
-                        for (auto imgPos: group) {
-                            _trainImgs.push_back(imgProcessed[imgPos]);
-                            _trainLabels.push_back(this->d_ptr->labels[imgPos]);
+                        for (auto imgPos: labels) {
+                            _recogTrainImgs.push_back(imgProcessed[imgPos]);
+                            _recogTrainLabels.push_back(this->d_ptr->labels[imgPos]);
                         }
                     }
                     groupPos++;
                 }
 
                 recog->resetTrain();
-                recog->train(_trainImgs, _trainLabels);
+                recog->train(_recogTrainImgs, _recogTrainLabels);
 
                 //std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
                 int posTest = 0;
                 int VP = 0, FP = 0, FN = 0, VN = 0;
-                for (auto trainImg: _trainImgs) {
+                for (auto trainImg: _recogTrainImgs) {
                     testSensitivitiesSpecificity(true,
                                                  recog->predict(trainImg),
-                                                 _trainLabels[posTest],
+                                                 _recogTrainLabels[posTest],
                                                  VP, FP, FN, VN);
                     posTest++;
                 }
                 posTest = 0;
-                for (auto testImg: _testImgs) {
-                    int realLabel = _testLabels[posTest];
+                for (auto testImg: _recogTestImgs) {
+                    int realLabel = _recogTestLabels[posTest];
 
-                    testSensitivitiesSpecificity(std::find(_trainLabels.begin(), _trainLabels.end(), realLabel) != _trainLabels.end(),
+                    testSensitivitiesSpecificity(std::find(_recogTrainLabels.begin(), _recogTrainLabels.end(), realLabel) != _recogTrainLabels.end(),
                                                  recog->predict(testImg),
                                                  realLabel,
                                                  VP, FP, FN, VN);
@@ -198,7 +221,7 @@ void Tester::run()
                 processorsNames.push_back(processorName);
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
-                //std::cout << "    Realizando teste de credenciamento:" << testPos << std::endl;
+                //std::cout << "    Realizando teste de comparacao:" << testPos << std::endl;
                 /*
                 posTest = 0;
                 VP = 0; FP = 0; FN = 0; VN = 0;
@@ -225,51 +248,66 @@ void Tester::run()
 /**
  * calcula as permutações
  */
-std::vector<std::vector<ImageProcessor *> > Tester::permutations(const std::vector<ImageProcessor *> &processors)
+std::vector<std::vector<ImageProcessor *> > Tester::permutations(
+        const std::vector<ImageProcessor *> &processorsOrderFixed,
+        const std::vector<ImageProcessor *> &processors)
 {
+    std::vector<std::vector<ImageProcessor *>> rs;
     std::vector<ImageProcessor *> _processors = processors;
 
-    std::vector<std::vector<ImageProcessor *>> _permutations;
-
+    //Ordena processadores
     std::sort(_processors.begin(), _processors.end());
     do {
-      _permutations.push_back(_processors);
+      //inicia lista com processadores com ordem fixada
+      std::vector<ImageProcessor *> _perm;
+      _perm.insert(_perm.end(), processorsOrderFixed.begin(), processorsOrderFixed.end());
+      _perm.insert(_perm.end(), _processors.begin(), _processors.end());
+
+      rs.push_back(_perm);
 
       //for (auto && item: _processors) std::cout << "  " << (item ? item->name() : "-");
       //std::cout << std::endl;
     } while ( std::next_permutation(_processors.begin(), _processors.end()) );
 
+    //Cria lista de permutações com um item a menos.
     int size = _processors.size();
     for (int pos = 0; pos < size; pos++) {
         std::vector<ImageProcessor *> _nextProcessors = _processors;
         _nextProcessors.erase(_nextProcessors.begin() + pos);
 
         if (_nextProcessors.size()) {
-            std::vector<std::vector<ImageProcessor *> > others = permutations(_nextProcessors);
-
-            _permutations.insert(_permutations.end(), others.begin(), others.end());
+            std::vector<std::vector<ImageProcessor *> > others = permutations(processorsOrderFixed, _nextProcessors);
+            rs.insert(rs.end(), others.begin(), others.end());
         }
     }
 
-    return _permutations;
+    return rs;
 }
 
-std::vector<std::vector<int> > Tester::leaveOneOutGroups(int imageSize)
+/**
+ * Cria grupo de testes
+ * Lista composta pelos rótulos das faces
+ */
+std::vector<std::vector<int> > Tester::leaveOneOutGroups()
 {
     std::vector< std::vector<int> > res;
 
-    std::vector<int> sorted(imageSize);
-    for (int x = 0; x< imageSize; x++) {
-        sorted[x] = x;
+    std::vector<int> sortedTrain;
+    int pos = -1;
+    for (int flag: this->d_ptr->flags) {
+        pos++;
+        int label = this->d_ptr->labels[pos];
+        if ((flag | RECOG_TRAIN) && !std::binary_search(sortedTrain.begin(), sortedTrain.end(), label))
+            sortedTrain.push_back(label);
     }
 
-    int imagesPerGroup = imageSize / d_ptr->leaveOneOutGroupSize;
+    int imagesPerGroup = sortedTrain.size() / d_ptr->leaveOneOutGroupSize;
 
     for (int start = 0; start < d_ptr->leaveOneOutGroupSize; start++) {
-        std::vector<int>::iterator begin = sorted.begin() + (start * imagesPerGroup);
-        std::vector<int>::iterator end = ((1+start) * imagesPerGroup) > sorted.size()
-                ? sorted.end()
-                : sorted.begin() + ((1+start) * imagesPerGroup);
+        std::vector<int>::iterator begin = sortedTrain.begin() + (start * imagesPerGroup);
+        std::vector<int>::iterator end = ((1+start) * imagesPerGroup) > sortedTrain.size()
+                ? sortedTrain.end()
+                : sortedTrain.begin() + ((1+start) * imagesPerGroup);
 
         res.push_back(std::vector<int> ( begin, end ));
     }

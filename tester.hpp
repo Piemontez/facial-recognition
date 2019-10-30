@@ -32,8 +32,8 @@ public:
     std::vector<AlgorithmTest*> algorithms();
     void addAlgorithm(AlgorithmTest *test);
 
-    std::vector<ImageProcessor *> preProcessor();
-    void addPreProcessor(ImageProcessor *processor);
+    std::vector<ImageProcessor *> preProcessors();
+    void addPreProcessor(ImageProcessor *processor, int fixedOrder = -1);
 
     ImageLoader *imageLoader();
     void setImageLoader(ImageLoader *processor);
@@ -46,9 +46,11 @@ public:
                      std::vector<std::string> processorsNames,
                      std::vector<std::tuple<int, int, int, int> > resultTests);
 private:
-    std::vector<std::vector<ImageProcessor *>> permutations(const std::vector<ImageProcessor *> &processors);
+    std::vector<std::vector<ImageProcessor *>> permutations(
+            const std::vector<ImageProcessor *> &processorsOrderFixed,
+            const std::vector<ImageProcessor *> &processors);
 
-    std::vector<std::vector<int>> leaveOneOutGroups(int imageSize);
+    std::vector<std::vector<int>> leaveOneOutGroups();
     void testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int realLabel, int &VP, int &FP, int &FN, int &VN);
 };
 

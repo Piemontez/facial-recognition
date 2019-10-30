@@ -1,6 +1,5 @@
 #include "3dloader.hpp"
 
-
 #include "iostream"
 #include "json/reader.h"
 #include "opencv4/opencv2/opencv.hpp"
@@ -33,15 +32,73 @@ ThreeLoader::ThreeLoader() {
             std::string uuid = (*i).asString();
 
             Json::Value voluntary = root[uuid];
-            if (voluntary.empty() && !voluntary["front"].begin()->isObject()) continue;
+            if (voluntary.empty()) continue;
 
-            //coleta primeira imagem frontal
-            Json::Value front = *voluntary["front"].begin();
-            //endereço imagem frontal
-            std::string dethPath = front["depth_with_bg"].asString();
+            if (voluntary["front"].isArray() && voluntary["front"].begin()->isObject()) {
+                //coleta primeira imagem frontal
+                Json::Value front = *voluntary["front"].begin();
+                //endereço imagem frontal
+                std::string dethPath = front["depth_with_bg"].asString();
 
-            _files.push_back(rap3dfFolder + dethPath);
-            _labels.push_back(uuid);
+                _files.push_back(rap3dfFolder + dethPath);
+                _labels.push_back(uuid);
+                _flags.push_back(DEPTH | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
+            }
+
+            if (voluntary["right"].isArray() && voluntary["right"].begin()->isObject()) {
+                //coleta primeira imagem frontal
+                Json::Value front = *voluntary["front"].begin();
+                //endereço imagem frontal
+                std::string dethPath = front["depth_with_bg"].asString();
+
+                _files.push_back(rap3dfFolder + dethPath);
+                _labels.push_back(uuid);
+                _flags.push_back(DEPTH | RITH | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+            }
+
+            if (voluntary["left"].isArray() && voluntary["left"].begin()->isObject()) {
+                //coleta primeira imagem frontal
+                Json::Value front = *voluntary["front"].begin();
+                //endereço imagem frontal
+                std::string dethPath = front["depth_with_bg"].asString();
+
+                _files.push_back(rap3dfFolder + dethPath);
+                _labels.push_back(uuid);
+                _flags.push_back(DEPTH | LEFT | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+            }
+
+            if (voluntary["up"].isArray() && voluntary["up"].begin()->isObject()) {
+                //coleta primeira imagem frontal
+                Json::Value front = *voluntary["front"].begin();
+                //endereço imagem frontal
+                std::string dethPath = front["depth_with_bg"].asString();
+
+                _files.push_back(rap3dfFolder + dethPath);
+                _labels.push_back(uuid);
+                _flags.push_back(DEPTH | TOP | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+            }
+
+            if (voluntary["down"].isArray() && voluntary["down"].begin()->isObject()) {
+                //coleta primeira imagem frontal
+                Json::Value front = *voluntary["front"].begin();
+                //endereço imagem frontal
+                std::string dethPath = front["depth_with_bg"].asString();
+
+                _files.push_back(rap3dfFolder + dethPath);
+                _labels.push_back(uuid);
+                _flags.push_back(DEPTH | DOWN | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+            }
+
+            if (voluntary["burned"].isArray() && voluntary["burned"].begin()->isObject()) {
+                //coleta primeira imagem frontal
+                Json::Value front = *voluntary["front"].begin();
+                //endereço imagem frontal
+                std::string dethPath = front["depth_with_bg"].asString();
+
+                _files.push_back(rap3dfFolder + dethPath);
+                _labels.push_back(uuid);
+                _flags.push_back(DEPTH | RANDOM | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+            }
         }
     }
 }
@@ -75,9 +132,9 @@ std::vector<int> ThreeLoader::flags()
 {
     std::vector<int> flags;
 
-    for (auto && label: _labels)
+    for (auto && label: _flags)
     {
-        flags.push_back(FRONTAL | DEPTH);
+        flags.push_back(label);
     }
 
     return flags;

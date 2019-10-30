@@ -17,13 +17,13 @@ int main(int /*argc*/, char **/*argv*/)
     tests.push_back(new VisTester);
 
     std::cout << "  Total testadores:" << tests.size() << std::endl;
-    for(auto && tester: tests)
+    for (auto && tester: tests)
         std::cout << "  " << tester->name() << std::endl
                   << "    Total Algorithms: " << tester->algorithms().size() << std::endl
-                  << "    Total Pre processadores: " << tester->preProcessor().size() << std::endl;
+                  << "    Total Pre processadores: " << tester->preProcessors().size() << std::endl;
 
     std::cout << "Iniciando testes" << std::endl;
-    for(auto && tester: tests)
+    for (auto && tester: tests)
         tester->run();
 
     return 0;

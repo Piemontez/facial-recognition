@@ -22,28 +22,31 @@ add_compile_definitions(TESTER_FOLDER="")
 
 #file to builder
 add_executable(facerecog-tester
-	main.cpp
-        algorithmfactory.cpp
-        tester.cpp
+    main.cpp
+    algorithmfactory.cpp
+    tester.cpp
 #testadores
-        tester/3dtester.cpp
-        tester/irtester.cpp
-        tester/vistester.cpp
+    tester/3dtester.cpp
+    tester/irtester.cpp
+    tester/vistester.cpp
 #imageloader
-        loader/3dloader.cpp
-        loader/irloader.cpp
-        loader/visloader.cpp
+    loader/3dloader.cpp
+    loader/irloader.cpp
+    loader/visloader.cpp
 #processadoresimagem
-        processor/gaussianblur.cpp
-        processor/posecorretion.cpp
-        processor/lbp.cpp
-        processor/dct.cpp
+    processor/gaussianblur.cpp
+    processor/posecorretion.cpp
+    processor/lbp.cpp
+    processor/dct.cpp
 #reconhecedores
-        recognizer/pca.cpp
-        recognizer/lda.cpp
-        recognizer/svm.cpp
-        recognizer/lpp.cpp
-        )
+    recognizer/pca.cpp
+    recognizer/lda.cpp
+    recognizer/svm.cpp
+    recognizer/lpp.cpp
+#libs
+    libs/afm.cpp
+    libs/icp.cpp
+)
 
 target_link_libraries(facerecog-tester
   ${OpenCV_LIBS}

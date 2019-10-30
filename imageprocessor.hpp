@@ -1,7 +1,7 @@
 #ifndef IMAGEPROCESSOR_HPP
 #define IMAGEPROCESSOR_HPP
 
-#include "string";
+#include "string"
 
 namespace cv {
     class Mat;
