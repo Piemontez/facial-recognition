@@ -1,19 +1,18 @@
 #ifndef ICP_HPP
 #define ICP_HPP
 
+#include <opencv4/opencv2/core/mat.hpp>
 #include "../imageprocessor.hpp"
-
-namespace cv {
-    class Mat;
-}
 
 /**
  * @brief The Iterative closest point
  */
 class ICP : public ImageProcessor
 {
+    cv::Mat frontalFace;
+
 public:
-    ICP(cv::Mat *frontalFace);
+    ICP(const cv::Mat &frontalFace);
 
     virtual cv::Mat proccess(const cv::Mat &image) override;
     virtual std::string name() override { return "ICP"; };

@@ -5,6 +5,8 @@
 
 #include "../imageloader.hpp"
 #include "../libs/afm.hpp"
+#include "../libs/icp.hpp"
+#include "../libs/ganpan.hpp"
 
 class PoseCorrection : public ImageProcessor
 {
@@ -12,6 +14,8 @@ class PoseCorrection : public ImageProcessor
     virtual std::string name() override { return "PoseCorrection"; };
 
     AFM *afm;
+    ICP *icp;
+    GanPan *ganpan;
 public:
     PoseCorrection(ImageLoader *loader);
 

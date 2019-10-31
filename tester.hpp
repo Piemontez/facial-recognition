@@ -33,7 +33,8 @@ public:
     void addAlgorithm(AlgorithmTest *test);
 
     std::vector<ImageProcessor *> preProcessors();
-    void addPreProcessor(ImageProcessor *processor, int fixedOrder = -1);
+    void addPreProcessorOrderFixed(ImageProcessor *processor);
+    void addPreProcessor(ImageProcessor *processor);
 
     ImageLoader *imageLoader();
     void setImageLoader(ImageLoader *processor);

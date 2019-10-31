@@ -61,12 +61,14 @@ std::vector<ImageProcessor *> Tester::preProcessors()
     return rs;
 }
 
-void Tester::addPreProcessor(ImageProcessor *processor, int fixedOrder)
+void Tester::addPreProcessorOrderFixed(ImageProcessor *processor)
 {
-    if (fixedOrder != -1)
-        d_ptr->imgsProcessorOrdered.push_back(processor);
-    else
-        d_ptr->imgsProcessor.push_back(processor);
+    d_ptr->imgsProcessorOrdered.push_back(processor);
+}
+
+void Tester::addPreProcessor(ImageProcessor *processor)
+{
+    d_ptr->imgsProcessor.push_back(processor);
 }
 
 ImageLoader *Tester::imageLoader()

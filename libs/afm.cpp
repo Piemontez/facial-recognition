@@ -41,9 +41,6 @@ AFM::AFM(ImageLoader *loader)
             ++imgIt;
         }
         m.convertTo(m, CV_8U, 1. / imgsTrain.size());
-
-        cv::imshow("processed", m);
-        cv::waitKey();
     }
 }
 

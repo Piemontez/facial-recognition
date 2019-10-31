@@ -47,6 +47,7 @@ add_executable(facerecog-tester
     libs/ganpan.cpp
     libs/afm.cpp
     libs/icp.cpp
+    libs/facedetection.cpp
 )
 
 target_link_libraries(facerecog-tester
