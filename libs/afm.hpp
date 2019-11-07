@@ -1,19 +1,19 @@
 #ifndef AFM_HPP
 #define AFM_HPP
 
+#include <opencv4/opencv2/core/mat.hpp>
+
 #include "../imageprocessor.hpp"
 
 #include "../imageloader.hpp"
 
-namespace cv {
-    class Mat;
-}
 
 /**
  * @brief The Average Face Model
  */
 class AFM : public ImageProcessor
 {
+    cv::Mat afm;
 public:
     /**
      * @param loader: lista de imagens para criar rosto genérico

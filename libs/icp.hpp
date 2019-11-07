@@ -4,12 +4,19 @@
 #include <opencv4/opencv2/core/mat.hpp>
 #include "../imageprocessor.hpp"
 
+namespace cv {
+    namespace ppf_match_3d {
+        class ICP;
+    }
+}
+
 /**
  * @brief The Iterative closest point
  */
 class ICP : public ImageProcessor
 {
     cv::Mat frontalFace;
+    cv::ppf_match_3d::ICP* icp;
 
 public:
     ICP(const cv::Mat &frontalFace);

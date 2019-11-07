@@ -12,23 +12,27 @@ GanPan::GanPan()
 
     facemark->loadModel(facemark_filename);
 
+    faceD = new FaceDetection();
 }
 
 cv::Mat GanPan::proccess(const cv::Mat &image)
 {
+    /*
     std::vector< std::vector<cv::Point2f> > shapes;
-    std::vector<cv::Rect> faces;
-    faces.push_back(cv::Rect(0, 0, image.cols, image.rows));
 
-    //cv::imshow("processed", image);
-    //cv::waitKey();
+    //std::vector<cv::Rect> faces = faceD->getfaces(image);
+    std::vector<cv::Rect> faces;faces.push_back(cv::Rect(0, 0, image.cols, image.rows));
+
+    cv::imshow("processed", image);
+    cv::waitKey();
 
     if (facemark->fit(image, faces, shapes)) {
         cv::face::drawFacemarks(image, shapes[0], cv::Scalar(0, 0, 255));
     }
 
     cv::imshow("processed", image);
-    cv::waitKey(100);
+    cv::waitKey();
+    */
 
     return image;
 }

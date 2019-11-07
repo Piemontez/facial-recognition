@@ -2,6 +2,7 @@
 #define GANPAN_HPP
 
 #include "../imageprocessor.hpp"
+#include "../libs/facedetection.hpp"
 
 #include <opencv2/face.hpp>
 
@@ -10,6 +11,7 @@
  */
 class GanPan : public ImageProcessor
 {
+    FaceDetection *faceD;
     cv::Ptr<cv::face::Facemark> facemark;
 public:
     GanPan();

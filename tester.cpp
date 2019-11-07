@@ -149,7 +149,9 @@ void Tester::run()
             for (auto && pre: perms) {
                 img = pre->proccess(img.clone());
             }
-            cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+            if (img.channels() > 1) {
+                cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+            }
 
             imgProcessed.push_back(img);
 

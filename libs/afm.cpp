@@ -29,22 +29,24 @@ AFM::AFM(ImageLoader *loader)
     //Realiza a média
     if (imgsTrain.size()) {
         cv::Mat temp;
-        cv::Mat m(imgs[0].rows, imgs[0].cols, CV_64FC3);
+        cv::Mat m(imgs[0].rows, imgs[0].cols, CV_64FC1);
         m.setTo(cv::Scalar(0,0,0,0));
 
         std::vector<cv::Mat>::iterator imgIt = imgsTrain.begin();
         while(imgIt != imgsTrain.end())
         {
-            (*imgIt).convertTo(temp, CV_64FC3);
+            (*imgIt).convertTo(temp, CV_64FC1);
             m += temp;
 
             ++imgIt;
         }
-        m.convertTo(m, CV_8U, 1. / imgsTrain.size());
+        m.convertTo(m, CV_32FC1, 1. / imgsTrain.size());
+
+        afm = m;
     }
 }
 
 cv::Mat AFM::proccess(const cv::Mat &image)
 {
-    return image;
+    return afm;
 }
