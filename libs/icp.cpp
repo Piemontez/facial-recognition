@@ -10,8 +10,8 @@ ICP::ICP(const cv::Mat &frontalFace)
 {
     this->frontalFace = frontalFace.clone();
 
-    icp = new cv::ppf_match_3d::ICP(2000, 0.001f, 2.5f, 8);
-    //icp = new cv::ppf_match_3d::ICP(1000);
+    //icp = new cv::ppf_match_3d::ICP(200, 0.001f, 2.5f, 8);
+    icp = new cv::ppf_match_3d::ICP(100);
     //int64 t1 = cv::getTickCount();
 }
 
@@ -21,9 +21,28 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache)
     assert(imageCache.type() == CV_32F);
 
     cv::Rect a(0, 0, imageCache.cols, imageCache.rows/5*4);
-    cv::Mat frontalFace = cv::Mat(this->frontalFace.rows * this->frontalFace.cols, 1, CV_32FC3, cv::Scalar(0,0,0));
-    cv::Mat image = cv::Mat(imageCache.rows * imageCache.cols, 1, CV_32FC3, cv::Scalar(0,0,0));
+    cv::Mat frontalFace = cv::Mat(this->frontalFace.rows * this->frontalFace.cols, 3, CV_32FC1, cv::Scalar(0));
+    cv::Mat image = cv::Mat(imageCache.rows * imageCache.cols, 3, CV_32FC1, cv::Scalar(0));
 
+    std::vector<uint16_t>::size_type i;
+    for (int y = 0; y < imageCache.rows; y++) {
+        for (int x = 0; x < imageCache.cols; x++) {
+            i = static_cast< std::vector<uint16_t>::size_type >((y * imageCache.cols) + x);
+
+            image.at<float>(i, 0) = y;
+            image.at<float>(i, 1) = x;
+            image.at<float>(i, 2) = imageCache.at<float>(y, x);
+        }
+    }
+    for (int y = 0; y < this->frontalFace.rows; y++) {
+        for (int x = 0; x < this->frontalFace.cols; x++) {
+            i = static_cast< std::vector<uint16_t>::size_type >((y * imageCache.cols) + x);
+
+            frontalFace.at<float>(i, 0) = y;
+            frontalFace.at<float>(i, 1) = x;
+            frontalFace.at<float>(i, 2) = this->frontalFace.at<float>(y, x);
+        }
+    }
     /*
     // Now train the model
     //int64 tick1 = cv::getTickCount();
@@ -58,14 +77,26 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache)
 
     cv::Matx44d poses;
     double residual = 0;
-    icp->registerModelToScene(image, frontalFace.clone(), residual, poses);
+    icp->registerModelToScene(image, frontalFace, residual, poses);
+
 
     cv::Mat newpose = cv::ppf_match_3d::transformPCPose(image, poses);
+
+    cv::Mat newposeFm(imageCache.rows, imageCache.cols, CV_32FC1, cv::Scalar(1));
+    for (int y = 0; y < image.rows; y++) {
+        for (int x = 0; x < image.cols; x++) {
+            i = static_cast< std::vector<uint16_t>::size_type >((y * imageCache.cols) + x);
+
+            //newposeFm.at<float>(y, 0) = 1;//newpose.at<float>(i, 0);
+        }
+    }
+
+
 
     cv::imshow("frontal", imageCache);
 //    cv::imshow("frontal", frontalFace);
 //    cv::imshow("processed", image);
-//    cv::imshow("new pose", newpose);
+    //cv::imshow("new pose", newposeFm);
     cv::waitKey(100);
 
     return image;
