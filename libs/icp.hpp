@@ -16,6 +16,7 @@ namespace cv {
 class ICP : public ImageProcessor
 {
     cv::Mat frontalFace;
+    cv::Mat frontalFaceCloud;
     cv::ppf_match_3d::ICP* icp;
 
 public:
