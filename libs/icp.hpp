@@ -7,6 +7,7 @@
 namespace cv {
     namespace ppf_match_3d {
         class ICP;
+        class PPF3DDetector;
     }
 }
 
@@ -17,7 +18,9 @@ class ICP : public ImageProcessor
 {
     cv::Mat frontalFace;
     cv::Mat frontalFaceCloud;
+
     cv::ppf_match_3d::ICP* icp;
+    cv::ppf_match_3d::PPF3DDetector* detector;
 
 public:
     ICP(const cv::Mat &frontalFace);

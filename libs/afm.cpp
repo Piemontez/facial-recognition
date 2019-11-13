@@ -25,7 +25,8 @@ AFM::AFM(ImageLoader *loader)
         ++flagIt;
     }
 
-    std::cout << "AFM: Criando face genérica."  << std::endl;
+    std::cout << "AFM: Criando face genérica." << std::endl;
+    std::cout << "AFM: Total de imagens: " << imgsTrain.size() << std::endl;
     //Realiza a média
     if (imgsTrain.size()) {
         cv::Mat temp;
@@ -44,6 +45,8 @@ AFM::AFM(ImageLoader *loader)
 
         afm = m;
     }
+    afm = imgsTrain[0];
+    std::cout << "AFM: Face genérica criada." << std::endl;
 }
 
 cv::Mat AFM::proccess(const cv::Mat &image)
