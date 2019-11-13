@@ -36,66 +36,78 @@ ThreeLoader::ThreeLoader() {
 
             if (voluntary["front"].isArray() && voluntary["front"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["front"].begin();
+                Json::Value amostra = *voluntary["front"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["depth_data_with_bg"].asString();
+                std::string dethPath = amostra["depth_data_with_bg"].asString();
+                std::string rgbPath = amostra["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
+                _filesRBG.push_back(rap3dfFolder + rgbPath);
                 _labels.push_back(uuid);
                 _flags.push_back(DEPTH | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["right"].isArray() && voluntary["right"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["right"].begin();
+                Json::Value amostra = *voluntary["right"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["depth_data_with_bg"].asString();
+                std::string dethPath = amostra["depth_data_with_bg"].asString();
+                std::string rgbPath = amostra["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
+                _filesRBG.push_back(rap3dfFolder + rgbPath);
                 _labels.push_back(uuid);
                 _flags.push_back(DEPTH | RITH | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["left"].isArray() && voluntary["left"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["left"].begin();
+                Json::Value amostra = *voluntary["left"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["depth_data_with_bg"].asString();
+                std::string dethPath = amostra["depth_data_with_bg"].asString();
+                std::string rgbPath = amostra["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
+                _filesRBG.push_back(rap3dfFolder + rgbPath);
                 _labels.push_back(uuid);
                 _flags.push_back(DEPTH | LEFT | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["up"].isArray() && voluntary["up"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["up"].begin();
+                Json::Value amostra = *voluntary["up"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["depth_data_with_bg"].asString();
+                std::string dethPath = amostra["depth_data_with_bg"].asString();
+                std::string rgbPath = amostra["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
+                _filesRBG.push_back(rap3dfFolder + rgbPath);
                 _labels.push_back(uuid);
                 _flags.push_back(DEPTH | TOP | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["down"].isArray() && voluntary["down"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["down"].begin();
+                Json::Value amostra = *voluntary["down"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["depth_data_with_bg"].asString();
+                std::string dethPath = amostra["depth_data_with_bg"].asString();
+                std::string rgbPath = amostra["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
+                _filesRBG.push_back(rap3dfFolder + rgbPath);
                 _labels.push_back(uuid);
                 _flags.push_back(DEPTH | DOWN | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["burned"].isArray() && voluntary["burned"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["burned"].begin();
+                Json::Value amostra = *voluntary["burned"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["depth_data_with_bg"].asString();
+                std::string dethPath = amostra["depth_data_with_bg"].asString();
+                std::string rgbPath = amostra["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
+                _filesRBG.push_back(rap3dfFolder + rgbPath);
                 _labels.push_back(uuid);
                 _flags.push_back(DEPTH | RANDOM | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
@@ -141,6 +153,18 @@ std::vector<cv::Mat> ThreeLoader::images()
 
         images.push_back( img );
 
+    }
+
+    return images;
+}
+
+std::vector<cv::Mat> ThreeLoader::imagesRGB()
+{
+    std::vector<cv::Mat> images;
+
+    for (auto && filePath: _filesRBG)
+    {
+        images.push_back( cv::imread(filePath) );
     }
 
     return images;

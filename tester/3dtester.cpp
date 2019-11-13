@@ -1,6 +1,7 @@
 #include "3dtester.hpp"
 
 #include "../loader/3dloader.hpp"
+#include "../processor/roi.hpp"
 #include "../processor/posecorretion.hpp"
 #include "../processor/gaussianblur.hpp"
 #include "../processor/lbp.hpp"
@@ -12,11 +13,12 @@ ThreeDTester::ThreeDTester() {
     auto imgLoader = new ThreeLoader;
     setImageLoader(imgLoader);
 
+    addPreProcessorOrderFixed(new ROI());
     addPreProcessorOrderFixed(new PoseCorrection(imgLoader));
 
-    addPreProcessor(new GaussianBlur);
-    addPreProcessor(new LBP);
-    addPreProcessor(new DCT);
+    //addPreProcessor(new GaussianBlur);
+    //addPreProcessor(new LBP);
+    //addPreProcessor(new DCT);
 }
 
 std::string ThreeDTester::name()

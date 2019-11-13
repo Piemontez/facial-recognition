@@ -22,7 +22,7 @@ ICP::ICP(const cv::Mat &frontalFace)
     {//Total de pontos da malha 3D facial.
         for (int y = 0; y < frontalFace.rows; y++) {
             for (int x = 0; x < frontalFace.cols; x++) {
-                if (frontalFace.at<float>(y, x) > 0.9990 || y > 114 || x > 90)
+                if (frontalFace.at<float>(y, x) > 0.9990)
                     continue;
                 pointsFrontal ++;
             }
@@ -36,10 +36,8 @@ ICP::ICP(const cv::Mat &frontalFace)
     {//Cria image3D do rosto a partir da imagem de profundidade do rosto genérico
         for (int y = 0; y < frontalFace.rows; y++) {
             for (int x = 0; x < frontalFace.cols; x++) {
-                if (frontalFace.at<float>(y, x) > 0.99990 || y > 114 || x > 90)
+                if (frontalFace.at<float>(y, x) > 0.99990)
                     continue;
-
-                //i = static_cast< std::vector<uint16_t>::size_type >((y * frontalFace.cols) + x);
 
                 frontalFaceCloud.at<float>(pointsFrontal, 0) = y / REDUTOR;
                 frontalFaceCloud.at<float>(pointsFrontal, 1) = x / REDUTOR;
@@ -51,18 +49,18 @@ ICP::ICP(const cv::Mat &frontalFace)
     }
     std::cout << "ICP: Modelo 3D criado." << std::endl;
 
-//    std::cout << "ICP: Trainando detector de posição ." << std::endl;
-//    // Now train the model
-//    //int64 tick1 = cv::getTickCount();
-//    //detector = new cv::ppf_match_3d::PPF3DDetector(0.06, 0.08, 20);
-//    detector = new cv::ppf_match_3d::PPF3DDetector(0.06, 0.08, 25);
-//    detector->trainModel(frontalFaceCloud);
+    std::cout << "ICP: Trainando detector de posição ." << std::endl;
+    // Now train the model
+    //int64 tick1 = cv::getTickCount();
+    //detector = new cv::ppf_match_3d::PPF3DDetector(0.06, 0.08, 20);
+    detector = new cv::ppf_match_3d::PPF3DDetector(0.06, 0.08, 25);
+    detector->trainModel(frontalFaceCloud);
 
-//    //int64 tick2 = cv::getTickCount();
-//    std::cout << "ICP: Detector trainado." << std::endl;
+    //int64 tick2 = cv::getTickCount();
+    std::cout << "ICP: Detector trainado." << std::endl;
 }
 
-cv::Mat ICP::proccess(const cv::Mat &imageCache)
+cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader)
 {
     assert(this->frontalFace.type() == CV_32F);
     assert(imageCache.type() == CV_32F);
@@ -71,7 +69,7 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache)
     {//Total de pontos da malha de rosto
         for (int y = 0; y < imageCache.rows; y++) {
             for (int x = 0; x < imageCache.cols; x++) {
-                if (imageCache.at<float>(y, x) > 0.99990 || y > 110 || x > 100)
+                if (imageCache.at<float>(y, x) > 0.99990 || !imageCache.at<float>(y, x))
                     continue;
                 points ++;
             }
@@ -84,7 +82,7 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache)
         std::vector<uint16_t>::size_type i;
         for (int y = 0; y < imageCache.rows; y++) {
             for (int x = 0; x < imageCache.cols; x++) {
-                if (imageCache.at<float>(y, x) > 0.99990 || y > 110 || x > 100)
+                if (imageCache.at<float>(y, x) > 0.99990 || !imageCache.at<float>(y, x))
                     continue;
 
                 //i = static_cast< std::vector<uint16_t>::size_type >((y * imageCache.cols) + x);
@@ -102,7 +100,7 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache)
     std::vector<cv::ppf_match_3d::Pose3DPtr>  posesDetect;
     cv::Mat newpose;
     //tick1 = cv::getTickCount();
-    //detector->match(imageCloud, posesDetect, 1.0 / 5.0, 0.05);
+    detector->match(imageCloud, posesDetect, 1.0 / 5.0, 0.05);
     //tick2 = cv::getTickCount();
 
 
@@ -113,27 +111,27 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache)
     // Register for all selected poses
 //    icp->registerModelToScene(imageCloud, frontalFaceCloud, posesDetect);
 
-    std::cout << posesDetect.size() << std::endl;
-    std::cout << "------------" << std::endl;
+//    std::cout << posesDetect.size() << std::endl;
+//    std::cout << "------------" << std::endl;
 
-//    for (size_t k = 0; k < posesDetect.size(); k++)
-//    {
-//        auto result = posesDetect[k];
+    for (size_t k = 0; k < posesDetect.size(); k++)
+    {
+        auto result = posesDetect[k];
 //        result->printPose();
 //        result->pose(3,3) = 0.5;
 //        result->printPose();
 
-//        newpose = cv::ppf_match_3d::transformPCPose(imageCloud, result->pose);
+        newpose = cv::ppf_match_3d::transformPCPose(imageCloud, result->pose);
 
 //        std::cout << std::endl;
 //        std::cout << newpose.rows << std::endl << newpose.cols << std::endl;
 //        std::cout << newpose.channels() << std::endl << newpose.type() << std::endl;
 //        std::cout << "..........." << std::endl;
 
-        cv::Matx44d pose;
-        double residual = 0;
-        icp->registerModelToScene(imageCloud, frontalFaceCloud.clone(), residual, pose);
-        newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
+//        cv::Matx44d pose;
+//        double residual = 0;
+//        icp->registerModelToScene(imageCloud, frontalFaceCloud.clone(), residual, pose);
+//        newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
 
 
         //newpose = cv::ppf_match_3d::transformPCPose(image, poses);
@@ -165,6 +163,6 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache)
         //cv::imshow("processed", image);
         cv::imshow("new pose", newposeFm);
         cv::waitKey();
-    //}
+    }
     return imageCloud;
 }

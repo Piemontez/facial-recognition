@@ -1,5 +1,5 @@
-#ifndef GANPAN_HPP
-#define GANPAN_HPP
+#ifndef ROI_HPP
+#define ROI_HPP
 
 #include "../imageprocessor.hpp"
 #include "../libs/facedetection.hpp"
@@ -7,17 +7,18 @@
 #include <opencv2/face.hpp>
 
 /**
- * @brief The Iterative closest point
+ * @brief The ROI class
  */
-class GanPan : public ImageProcessor
+class ROI: public ImageProcessor
 {
     FaceDetection *faceD;
     cv::Ptr<cv::face::Facemark> facemark;
+
 public:
-    GanPan();
+    ROI();
 
     virtual cv::Mat proccess(const cv::Mat &image, int pos = 0, ImageLoader* imgLoader = nullptr) override;
-    virtual std::string name() override { return "GanPan"; };
+    virtual std::string name() override { return "ROI"; };
 };
 
-#endif // GANPAN_HPP
+#endif // ROI_HPP

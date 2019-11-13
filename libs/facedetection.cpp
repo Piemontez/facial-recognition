@@ -12,14 +12,16 @@ FaceDetection::FaceDetection()
     }
 }
 
-cv::Mat FaceDetection::proccess(const cv::Mat &image)
+cv::Mat FaceDetection::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
     std::vector<cv::Rect> faces = getfaces(image);
 
     if (faces.size() > 1) {
         std::cerr << "Detect many faces in the image." << std::endl;
     }
-
+    else if (faces.size() == 0) {
+        return cv::Mat();
+    }
     return cv::Mat(image, faces.front());
 }
 std::vector<cv::Rect> FaceDetection::getfaces(const cv::Mat &image)
@@ -39,15 +41,15 @@ std::vector<cv::Rect> FaceDetection::getfaces(const cv::Mat &image)
     // Histogram equalization generally aids in face detection
     cv::equalizeHist(gray, gray);
 
-    faces.clear();
     // Run the cascade classifier
     face_cascade.detectMultiScale(
       gray,
       faces,
-      1.4, // pyramid scale factor
+      1.1, // pyramid scale factor
       3,   // lower thershold for neighbors count
            // here we hint the classifier to only look for one face
-      cv::CASCADE_SCALE_IMAGE + cv::CASCADE_FIND_BIGGEST_OBJECT);
+      cv::CASCADE_SCALE_IMAGE + cv::CASCADE_FIND_BIGGEST_OBJECT),
+      cv::Size(20, 20);
 
 
     //cv::face::faceDetector(img, faces, face_cascade);
@@ -55,9 +57,10 @@ std::vector<cv::Rect> FaceDetection::getfaces(const cv::Mat &image)
     if (faces.size() == 0) {
         std::cerr << "Cannot detect any faces in the image." << std::endl;
     }
-
-    cv::imshow("processed", cv::Mat(image, faces.front()));
-    cv::waitKey();
+//    else {
+//        cv::imshow("processed", cv::Mat(image, faces.front()));
+//        cv::waitKey(100);
+//    }
 
     return faces;
 }

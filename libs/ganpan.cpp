@@ -7,15 +7,15 @@
 
 GanPan::GanPan()
 {
-    const std::string facemark_filename = "data/lbfmodel.yaml";
-    facemark = cv::face::createFacemarkLBF();
+//    const std::string facemark_filename = "data/lbfmodel.yaml";
+//    facemark = cv::face::createFacemarkLBF();
 
-    facemark->loadModel(facemark_filename);
+//    facemark->loadModel(facemark_filename);
 
-    faceD = new FaceDetection();
+//    faceD = new FaceDetection();
 }
 
-cv::Mat GanPan::proccess(const cv::Mat &image)
+cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
     /*
     std::vector< std::vector<cv::Point2f> > shapes;

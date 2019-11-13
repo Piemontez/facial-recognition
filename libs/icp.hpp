@@ -25,7 +25,7 @@ class ICP : public ImageProcessor
 public:
     ICP(const cv::Mat &frontalFace);
 
-    virtual cv::Mat proccess(const cv::Mat &image) override;
+    virtual cv::Mat proccess(const cv::Mat &image, int pos = 0, ImageLoader* imgLoader = nullptr) override;
     virtual std::string name() override { return "ICP"; };
 };
 

@@ -38,6 +38,7 @@ add_executable(facerecog-tester
     processor/posecorretion.cpp
     processor/lbp.cpp
     processor/dct.cpp
+    processor/roi.cpp
 #reconhecedores
     recognizer/pca.cpp
     recognizer/lda.cpp

@@ -16,7 +16,7 @@ class FaceDetection : public ImageProcessor
 public:
     FaceDetection();
 
-    virtual cv::Mat proccess(const cv::Mat &image) override;
+    virtual cv::Mat proccess(const cv::Mat &image, int pos = 0, ImageLoader* imgLoader = nullptr) override;
     std::vector<cv::Rect> getfaces(const cv::Mat &image);
     virtual std::string name() override { return "FaceDetection"; };
 };

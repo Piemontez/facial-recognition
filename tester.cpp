@@ -142,23 +142,25 @@ void Tester::run()
         }
         std::cout << "    Permutação:" << processorName << std::endl;
 
-        //Realiza os pré-processamentos da imagem
-        for (auto img: this->d_ptr->images) {
-            //cv::imshow("original", img);
 
-            for (auto && pre: perms) {
-                img = pre->proccess(img.clone());
+        {//Realiza os pré-processamentos da imagem
+            int pos = 0;
+            for (auto img: this->d_ptr->images) {
+                //cv::imshow("original", img);
+
+                for (auto && pre: perms) {
+                    img = pre->proccess(img.clone(), pos++, imageLoader());
+                }
+                if (img.channels() > 1) {
+                    cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+                }
+
+                imgProcessed.push_back(img);
+
+                //cv::imshow("processed", img);
+                //cv::waitKey();
             }
-            if (img.channels() > 1) {
-                cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
-            }
-
-            imgProcessed.push_back(img);
-
-            //cv::imshow("processed", img);
-            //cv::waitKey();
         }
-
         continue;
         //Todo: remover para inicar treinamento
 
