@@ -142,16 +142,19 @@ std::vector<cv::Mat> ThreeLoader::images()
             for (int x = 0; x < img.cols; x++) {
                 i = static_cast< std::vector<uint16_t>::size_type >((y * w) + x);
 
-                img.at<char>(y, x) = data[i] == 0 ? (char)255 : data[i] ;
+                img.at<char>(y, x) = data[i] == 0 ? (char)255 : data[i];
+//                img.at<char>(y, x) = (data[i] == 0 || data[i] < 100) ? (char)255 : ((data[i] - 99) * 2.5);
             }
         }
 
         cv::Mat imgEq;
         cv::equalizeHist(img, imgEq);
-
         imgEq.convertTo(img, CV_32FC1, 1.0/255.0);
 
         images.push_back( img );
+
+        //img.convertTo(imgEq, CV_32FC1, 1.0/255.0);
+        //images.push_back( imgEq );
 
     }
 

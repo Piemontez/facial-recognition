@@ -149,7 +149,7 @@ void Tester::run()
                 //cv::imshow("original", img);
 
                 for (auto && pre: perms) {
-                    img = pre->proccess(img.clone(), pos++, imageLoader());
+                    img = pre->proccess(img.clone(), pos, imageLoader());
                 }
                 if (img.channels() > 1) {
                     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
@@ -159,6 +159,7 @@ void Tester::run()
 
                 //cv::imshow("processed", img);
                 //cv::waitKey();
+                pos++;
             }
         }
         continue;

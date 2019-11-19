@@ -11,7 +11,10 @@
 class FaceDetection : public ImageProcessor
 {
     cv::Mat frontalFace;
+    int flags{/*cv::CASCADE_DO_CANNY_PRUNING |*/ cv::CASCADE_SCALE_IMAGE | cv::CASCADE_FIND_BIGGEST_OBJECT /*| cv::CASCADE_DO_ROUGH_SEARCH*/};
     cv::CascadeClassifier face_cascade;
+    cv::CascadeClassifier face_cascade_tree;
+    cv::CascadeClassifier profileface_cascade;
 
 public:
     FaceDetection();

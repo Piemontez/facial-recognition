@@ -5,11 +5,28 @@
 
 FaceDetection::FaceDetection()
 {
-    const std::string cascade_name = "data/haarcascades/haarcascade_frontalface_default.xml";
+    //cascade_name = "data/haarcascades/haarcascade_frontalface_default.xml";
+    //cascade_name = "data/haarcascades/haarcascade_frontalface_alt.xml";
+    //cascade_name = "data/haarcascades/haarcascade_frontalface_alt2.xml";
+    //cascade_name = "data/haarcascades/haarcascade_frontalface_alt_tree.xml";
 
+    std::string cascade_name;
+
+    cascade_name = "data/haarcascades/rl/haarcascade_frontalface_default.xml";
     if (not face_cascade.load(cascade_name)) {
          std::cerr << "Cannot load cascade classifier from file: " <<    cascade_name << std::endl;
     }
+
+    cascade_name = "data/haarcascades/rl/haarcascade_frontalface_alt_tree.xml";
+    if (not face_cascade_tree.load(cascade_name)) {
+         std::cerr << "Cannot load cascade classifier from file: " <<    cascade_name << std::endl;
+    }
+
+    cascade_name = "data/haarcascades/haarcascade_profileface.xml";
+    if (not profileface_cascade.load(cascade_name)) {
+         std::cerr << "Cannot load cascade classifier from file: " <<    cascade_name << std::endl;
+    }
+
 }
 
 cv::Mat FaceDetection::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
@@ -41,26 +58,64 @@ std::vector<cv::Rect> FaceDetection::getfaces(const cv::Mat &image)
     // Histogram equalization generally aids in face detection
     cv::equalizeHist(gray, gray);
 
-    // Run the cascade classifier
+    // frontal false
+    face_cascade_tree.detectMultiScale(
+      gray,
+      faces,
+      1.1, // pyramid scale factor
+      5,   // lower thershold for neighbors count
+           // here we hint the classifier to only look for one face
+      flags,
+      cv::Size(20, 20));
+
+    if (faces.size() > 0)
+        return faces;
+
+    // frontal false
     face_cascade.detectMultiScale(
       gray,
       faces,
       1.1, // pyramid scale factor
       3,   // lower thershold for neighbors count
            // here we hint the classifier to only look for one face
-      cv::CASCADE_SCALE_IMAGE + cv::CASCADE_FIND_BIGGEST_OBJECT),
-      cv::Size(20, 20);
+      flags,
+      cv::Size(20, 20));
 
+    if (faces.size() > 0)
+        return faces;
 
-    //cv::face::faceDetector(img, faces, face_cascade);
-    // Check if any faces were detected or not
-    if (faces.size() == 0) {
-        std::cerr << "Cannot detect any faces in the image." << std::endl;
+    //Profile face
+    profileface_cascade.detectMultiScale(
+      gray,
+      faces,
+      1.1, // pyramid scale factor
+      3,   // lower thershold for neighbors count
+           // here we hint the classifier to only look for one face
+      flags,
+      cv::Size(20, 20));
+
+    if (faces.size() > 0)
+        return faces;
+
+    //Revert profile face
+    cv::flip(gray, gray, 1);
+
+    profileface_cascade.detectMultiScale(
+      gray,
+      faces,
+      1.1, // pyramid scale factor
+      3,   // lower thershold for neighbors count
+           // here we hint the classifier to only look for one face
+      flags,
+      cv::Size(20, 20));
+    if (faces.size() > 0) {
+        for (auto && face: faces) {
+            face.x = image.cols - face.br().x;
+        }
+        return faces;
     }
-//    else {
-//        cv::imshow("processed", cv::Mat(image, faces.front()));
-//        cv::waitKey(100);
-//    }
+
+    std::cerr << "Cannot detect any faces in the image." << std::endl;
 
     return faces;
 }
