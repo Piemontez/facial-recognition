@@ -143,7 +143,8 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
     //    std::cout << imageCache.rows << std::endl << imageCache.cols << std::endl;
     //    std::cout << imageCache.channels() << std::endl << imageCache.type() << std::endl << std::endl;
 
-    //    std::cout << "..........." << std::endl;
+        std::cout << pose << std::endl;
+        std::cout << "..........." << std::endl;
 
         cv::Mat newposeFm(imageCache.rows, imageCache.cols, CV_32FC1, cv::Scalar(1));
         for (int j = 0; j < newpose.rows; j++) {

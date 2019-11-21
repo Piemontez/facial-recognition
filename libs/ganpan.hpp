@@ -17,8 +17,8 @@ public:
     GanPan();
 
     virtual cv::Mat proccess(const cv::Mat &image, int pos = 0, ImageLoader* imgLoader = nullptr) override;
-    virtual void estimatePoseDirection(const cv::Mat &roi, const std::vector<std::vector<cv::Point2f> > &shapes, cv::Mat &rvec, cv::Mat &tvec);
-    virtual void rotateImage(cv::Mat &roi, cv::Mat &rvec, cv::Mat &tvec);
+    virtual void estimatePoseDirection(const cv::Mat &image, const std::vector<std::vector<cv::Point2f> > &shapes, cv::Mat &rvec, cv::Mat &tvec);
+    virtual void rotateImage(cv::Mat &image, cv::Mat &rvec, cv::Mat &tvec);
     virtual std::string name() override { return "GanPan"; };
 };
 
