@@ -43,7 +43,7 @@ cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
         if (facemark->fit(rgb, faces, shapes)) {
             cv::face::drawFacemarks(rgb, shapes[0], cv::Scalar(255, 255, 255));
             cv::imshow("rgb", rgb);
-            cv::moveWindow("rgb",200,0);
+            cv::moveWindow("rgb",300,0);
 
             cv::Mat rvec, tvec;
             this->estimatePoseDirection(rgb, shapes, rvec, tvec);
@@ -127,9 +127,9 @@ void GanPan::rotateImage(cv::Mat &image, cv::Mat &rvec, cv::Mat &tvec)
     //for (double i = 0.0; i < 3.14; i += 0.025)
     {
         //_rvec.at<double>(0,0) = - _rvec.at<double>(0,0);
-        rvec.at<double>(0,0) = 0;
+        rvec.at<double>(0,0) = - rvec.at<double>(2,0);
         rvec.at<double>(1,0) = 0;
-        //rvec.at<double>(2,0) = 0;
+        rvec.at<double>(2,0) = 0;
         cv::Mat r = eulerAnglesToRotationMatrix(cv::Vec3d(rvec));
 
         cv::Matx44d pose(r.at<double>(0,0), r.at<double>(0,1), r.at<double>(0,2), 0,
