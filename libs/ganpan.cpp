@@ -11,6 +11,7 @@
 #define MULTIPLICADOR 2.0
 
 cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3d &theta);
+cv::Matx44d rotationMatrixTo44d(cv::Mat);
 
 GanPan::GanPan()
 {
@@ -45,9 +46,10 @@ cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
             this->estimatePoseDirection(rgb, shapes, rvec, tvec);
 
             cv::face::drawFacemarks(rgb, shapes[0], cv::Scalar(255, 255, 255));
+            /*
             cv::imshow("rgbpoints", rgb);
             cv::moveWindow("rgbpoints",300,0);
-
+            */
             this->rotateImage(roi, rvec, tvec);
 
             cv::Mat rs = cv::Mat(image.rows, image.cols, image.type(), cv::Scalar(255,255,255));
@@ -71,9 +73,9 @@ void GanPan::estimatePoseDirection(const cv::Mat &image, const std::vector< std:
       //{0, -14.47894, 10.63490},         //chin
     };
     for (auto && p3f: objectPoints) {
-        p3f.x *= 1.5;
-        p3f.y *= 1.5;
-        p3f.z *= 1.5;
+        p3f.x += 0;
+        p3f.y += 4.47894;
+        p3f.z += -17.73010;
     }
 
     //std::vector<int> landmarksIDsFor3DPoints {45, 36, 30, 48, 54, 9};
@@ -89,8 +91,9 @@ void GanPan::estimatePoseDirection(const cv::Mat &image, const std::vector< std:
 
     cv::solvePnP(cv::Mat(objectPoints), cv::Mat(points2d), cameraMatrix, cv::Mat(), rvec, tvec, false, cv::SOLVEPNP_DLS);
 
-
-    cv::Point3f nosePos = {0, -4.47894, 17.73010};
+    //cv::Point3f nosePos = {0, -4.47894, 17.73010};
+    /*
+    cv::Point3f nosePos = {0, -0, 0};
     std::vector<cv::Point3f> objectPointsForReprojection {
       nosePos,                   // tip of nose
       nosePos + cv::Point3f(0,0,20), // nose and Z-axis
@@ -106,6 +109,7 @@ void GanPan::estimatePoseDirection(const cv::Mat &image, const std::vector< std:
 
     cv::imshow("rgbarrow", image);
     cv::moveWindow("rgbarrow",600,0);
+    */
 }
 
 void GanPan::rotateImage(cv::Mat &image, cv::Mat &rvec, cv::Mat &tvec)
@@ -153,73 +157,58 @@ void GanPan::rotateImage(cv::Mat &image, cv::Mat &rvec, cv::Mat &tvec)
     double i = 0;//-3.1415926535897;
     //for (double i = 0.0; i < 3.14; i += 0.025)
     {
-        //_rvec.at<double>(0,0) = - _rvec.at<double>(0,0);
-        //std::swap(rvec.at<double>(2,0), rvec.at<double>(0,0));
-        //rvec.at<double>(0,0) = - rvec.at<double>(0,0);
-        //rvec.at<double>(1,0) = 0;
-        //rvec.at<double>(2,0) = 0;
+        rvec.at<double>(0,0) = 0;//-rvec.at<double>(0,0);
+        std::swap(rvec.at<double>(2,0), rvec.at<double>(0,0));
+        rvec.at<double>(0,0) = -rvec.at<double>(0,0);
         cv::Mat r = eulerAnglesToRotationMatrix(cv::Vec3d(rvec));
         std::swap(rvec.at<double>(2,0), rvec.at<double>(0,0));
 
-        cv::Matx44d pose(r.at<double>(0,0), r.at<double>(0,1), r.at<double>(0,2), 0,
-                         r.at<double>(1,0), r.at<double>(1,1), r.at<double>(1,2), 0,
-                         r.at<double>(2,0), r.at<double>(2,1), r.at<double>(2,2), 0,
-                         0, 0, 0, 1);
-
-        std::cout << "...." << std::endl;
-        std::cout << rvec << std::endl;
-        std::cout << r << std::endl;
-        //std::cout << R << std::endl;
-
-    //    cv::Matx44d pose(x33.at<float>(0,0), x33.at<float>(0,1), x33.at<float>(0,2), 0,
-    //                     x33.at<float>(1,0), x33.at<float>(1,1), x33.at<float>(1,2), 0,
-    //                     x33.at<float>(2,0), x33.at<float>(2,1), x33.at<float>(2,2), 0,
-    //                     0 , 0, 0, 1);
-
-    //    cv::Matx44d pose(0.87, -0.5, 0, 0,
-    //                     0.5, 0.87, 0, 0,
-    //                     0, 0, 1, 0,
-    //                     0, 0, 0, 1);
-
-        //cv::Mat newposeFm;
-        //cv::perspectiveTransform(imageCloud, newposeFm, pose);
+        cv::Matx44d pose = rotationMatrixTo44d(r);
 
         cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
 
-        cv::Mat newposeFm(image.rows*3, image.cols*3, CV_32FC1, cv::Scalar(1));
+        float minY = newpose.at<float>(0);
+        float minX = newpose.at<float>(1);
+        {
+            for (int j = 0; j < newpose.rows; j++) {
+                int i = static_cast< std::vector<uint16_t>::size_type >(j * 3);
+                if (minY > newpose.at<float>(i + 0))
+                    minY = newpose.at<float>(i + 0);
+                if (minX > newpose.at<float>(i + 1))
+                    minX = newpose.at<float>(i + 1);
+            }
+        }
+
+        cv::Mat newposeFm(image.rows, image.cols, CV_32FC1, cv::Scalar(1));
         for (int j = 0; j < newpose.rows; j++) {
             int i = static_cast< std::vector<uint16_t>::size_type >(j * 3);
 
-            float y = newpose.at<float>(i + 0)*REDUTOR+image.rows;
-            float x = newpose.at<float>(i + 1)*REDUTOR+image.cols;
-
-            //std::cout << x << " " << y  << " " << newpose.at<float>(i + 2) / MULTIPLICADOR<< " | " ;
+            float y = (newpose.at<float>(i + 0)-minY)*REDUTOR;
+            float x = (newpose.at<float>(i + 1)-minX)*REDUTOR;
 
             if (y < newposeFm.rows && x < newposeFm.cols && x  && x > 0 && y > 0)
                 newposeFm.at<float>((int)y, (int)x) = imageCloud.at<float>(i + 2);
         }
 
-        //Project
-        //cv::reprojectImageTo3D()
-        if (i == 0)
-        {
-            cv::Point3f nosePos = {0, -4.47894, 17.73010};
-            std::vector<cv::Point3f> objectPointsForReprojection {
-              nosePos,                   // tip of nose
-              nosePos + cv::Point3f(0,0,20), // nose and Z-axis
-              nosePos + cv::Point3f(0,20,0), // nose and Y-axis
-              nosePos + cv::Point3f(20,0,0),  // nose and X-axis
-            };
+//        if (i == 0)
+//        {
+//            cv::Point3f nosePos = {0, -4.47894, 17.73010};
+//            std::vector<cv::Point3f> objectPointsForReprojection {
+//              nosePos,                   // tip of nose
+//              nosePos + cv::Point3f(0,0,20), // nose and Z-axis
+//              nosePos + cv::Point3f(0,20,0), // nose and Y-axis
+//              nosePos + cv::Point3f(20,0,0),  // nose and X-axis
+//            };
 
-            cv::Point2d center = cv::Point2d(image.cols/2, image.rows/2);
-            cv::Mat cameraMatrix = (cv::Mat_<double>(3,3) << image.cols, 0, center.x, 0 , image.cols, center.y, 0, 0, 1);
+//            cv::Point2d center = cv::Point2d(image.cols/2, image.rows/2);
+//            cv::Mat cameraMatrix = (cv::Mat_<double>(3,3) << image.cols, 0, center.x, 0 , image.cols, center.y, 0, 0, 1);
 
-            std::vector<cv::Point2f> projectionOutput(objectPointsForReprojection.size());
-            cv::projectPoints(objectPointsForReprojection, rvec, tvec, cameraMatrix, cv::Mat(), projectionOutput);
-            cv::arrowedLine(image, projectionOutput[0], projectionOutput[1], cv::Scalar(255,255,255),1);
-            cv::arrowedLine(image, projectionOutput[0], projectionOutput[2], cv::Scalar(255,255,255),1);
-            cv::arrowedLine(image, projectionOutput[0], projectionOutput[3], cv::Scalar(255,255,255),1);
-        }
+//            std::vector<cv::Point2f> projectionOutput(objectPointsForReprojection.size());
+//            cv::projectPoints(objectPointsForReprojection, rvec, tvec, cameraMatrix, cv::Mat(), projectionOutput);
+//            cv::arrowedLine(image, projectionOutput[0], projectionOutput[1], cv::Scalar(255,255,255),1);
+//            cv::arrowedLine(image, projectionOutput[0], projectionOutput[2], cv::Scalar(255,255,255),1);
+//            cv::arrowedLine(image, projectionOutput[0], projectionOutput[3], cv::Scalar(255,255,255),1);
+//        }
         //std::cout << objectPointsForReprojection << std::endl;
         //std::cout << projectionOutput << std::endl;
 
@@ -263,8 +252,15 @@ cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3d &theta)
 
     // Combined rotation cv::Matrix
     cv::Mat R = R_z * R_y * R_x;
-    R = R_x;
 
     return R;
 
+}
+
+cv::Matx44d rotationMatrixTo44d(cv::Mat r)
+{
+    return cv::Matx44d(r.at<double>(0,0), r.at<double>(0,1), r.at<double>(0,2), 0,
+                     r.at<double>(1,0), r.at<double>(1,1), r.at<double>(1,2), 0,
+                     r.at<double>(2,0), r.at<double>(2,1), r.at<double>(2,2), 0,
+                     0, 0, 0, 1);
 }
