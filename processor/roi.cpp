@@ -27,8 +27,13 @@ cv::Mat ROI::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
     std::vector<cv::Rect> faces = faceD->getfaces(rgb);
     //cv::Mat face = faceD->proccess(rgb);
     if (faces.size() > 0) {
-        cv::Mat roi = cv::Mat(image.rows, image.cols, image.type(), cv::Scalar(1));
-        image(faces.front()).copyTo(roi(faces.front()));
+        cv::Mat roi = cv::Mat(image.rows, image.cols, image.type(), cv::Scalar(0));
+
+        cv::Rect front = faces.front();
+        front.x = (roi.cols / 2) - (+ front.width / 2);
+        front.y = (roi.rows / 2) - (+ front.height / 2);
+
+        image(faces.front()).copyTo(roi(front));
 
 
 //        std::vector< std::vector<cv::Point2f> > shapes;

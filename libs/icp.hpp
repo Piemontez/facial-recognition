@@ -17,7 +17,15 @@ namespace cv {
 class ICP : public ImageProcessor
 {
     cv::Mat frontalFace;
+    cv::Mat frontalFaceCloud_0_8;
+    cv::Mat frontalFaceCloud_0_9;
+    cv::Mat frontalFaceCloud_0_95;
+    cv::Mat frontalFaceCloud_0_975;
     cv::Mat frontalFaceCloud;
+    cv::Mat frontalFaceCloud_1_025;
+    cv::Mat frontalFaceCloud_1_05;
+    cv::Mat frontalFaceCloud_1_1;
+    cv::Mat frontalFaceCloud_1_2;
 
     cv::ppf_match_3d::ICP* icp;
     cv::ppf_match_3d::PPF3DDetector* detector;

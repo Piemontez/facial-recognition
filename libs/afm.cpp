@@ -43,18 +43,27 @@ AFM::AFM(ImageLoader *loader)
         {
             (*imgIt).convertTo(temp, CV_64FC1);
 
+            for(int i=0; i<temp.rows; i++)
+                for(int j=0; j<temp.cols; j++)
+                    if (temp.at<double>(i,j) < 0.1)
+                        temp.at<double>(i,j) = 0.1;
             m += temp;
 
             ++imgIt;
         }
-        m.convertTo(m, CV_32FC1, 1. / imgsTrain.size());
+        m.convertTo(afm, CV_32FC1, 1. / imgsTrain.size());
 
-        afm = m;
+        for(int i=0; i<temp.rows; i++)
+            for(int j=0; j<temp.cols; j++)
+                if (afm.at<float>(i,j) <= 0.17)
+                    afm.at<float>(i,j) = 0;
+
     }
-//    cv::imshow("afm", afm);
-//    cv::waitKey();
-
     std::cout << "AFM: Face genérica criada." << std::endl;
+
+    cv::imshow("afm",afm);
+    cv::moveWindow("afm",800,0);
+    //cv::waitKey();
 
     delete roi;
 }

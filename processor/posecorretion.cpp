@@ -4,13 +4,12 @@
 
 PoseCorrection::PoseCorrection(ImageLoader *loader)
 {
-    /*
     afm = new AFM(loader);
     cv::Mat afmImg =  afm->proccess(cv::Mat());
 
     icp = new ICP(afmImg);
-    */
-    icp = new ICP(cv::Mat());
+
+    //icp = new ICP(cv::Mat());
     ganpan = new GanPan();
 }
 

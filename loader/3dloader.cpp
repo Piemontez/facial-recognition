@@ -138,23 +138,49 @@ std::vector<cv::Mat> ThreeLoader::images()
         }
 
         cv::Mat img(h, w, CV_8UC1);
+        int min = 255;
+        int valids = 0;
+        int media = 0;
         for (int y = 0; y < img.rows; y++) {
             for (int x = 0; x < img.cols; x++) {
                 i = static_cast< std::vector<uint16_t>::size_type >((y * w) + x);
+                media += data[i];
+                if (data[i]) {
+                    valids++;
+                    if (data[i] < min)
+                        min = data[i];
+                }
 
-                img.at<char>(y, x) = data[i] == 0 ? (char)255 : data[i];
-//                img.at<char>(y, x) = (data[i] == 0 || data[i] < 100) ? (char)255 : ((data[i] - 99) * 2.5);
+            }
+        }
+        media = media / valids;
+        min = media - 25; //min + ((media - min) / 4);
+        //std::cout << images.size() << "|" << media << "|" << std::endl;
+
+        for (int y = 0; y < img.rows; y++) {
+            for (int x = 0; x < img.cols; x++) {
+                i = static_cast< std::vector<uint16_t>::size_type >((y * w) + x);
+                img.at<char>(y, x) = (data[i] < min || data[i] > (media + 15))
+                        ? 0
+                        : (data[i] - min) * 3;
             }
         }
 
-        cv::Mat imgEq;
-        cv::equalizeHist(img, imgEq);
-        imgEq.convertTo(img, CV_32FC1, 1.0/255.0);
+//        cv::Mat img(h, w, CV_8UC1);
+//        for (int y = 0; y < img.rows; y++) {
+//            for (int x = 0; x < img.cols; x++) {
+//                i = static_cast< std::vector<uint16_t>::size_type >((y * w) + x);
+//                img.at<char>(y, x) = data[i] == 0 ? (char)255 : data[i];
+//            }
+//        }
+        cv::Mat img32;
+//        cv::equalizeHist(img, imgEq);
+        img.convertTo(img32, CV_32FC1, 1.0/255.0);
 
-        images.push_back( img );
+        images.push_back( img32 );
 
-        //img.convertTo(imgEq, CV_32FC1, 1.0/255.0);
-        //images.push_back( imgEq );
+//        cv::imshow("newpose", img32);
+//        cv::waitKey();
 
     }
 

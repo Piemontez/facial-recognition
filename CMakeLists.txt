@@ -25,6 +25,7 @@ add_executable(facerecog-tester
     main.cpp
     algorithmfactory.cpp
     tester.cpp
+    tools.cpp
 #testadores
     tester/3dtester.cpp
     tester/irtester.cpp
