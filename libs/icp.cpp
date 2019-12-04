@@ -1,6 +1,9 @@
 ﻿#include "icp.hpp"
 #include "../tools.hpp"
 
+#include "icp/icpPointToPlane.h"
+#include "icp/icpPointToPoint.h"
+
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/surface_matching.hpp>
 #include <opencv4/opencv2/surface_matching/ppf_helpers.hpp>
@@ -11,7 +14,7 @@ ICP::ICP(const cv::Mat &frontalFace)
 {
     this->frontalFace = frontalFace.clone();
 
-    icp = new cv::ppf_match_3d::ICP(100, 0.10, 2.5f, 4, cv::ppf_match_3d::ICP::ICP_SAMPLING_TYPE_UNIFORM);
+    icp = new cv::ppf_match_3d::ICP(50, 0.05, 2.0f, 4, cv::ppf_match_3d::ICP::ICP_SAMPLING_TYPE_UNIFORM);
     //icp = new cv::ppf_match_3d::ICP(100);
 
     tools::depthImgToPointCloud(frontalFace, frontalFaceCloud, {true, true, true}, 0.1);
@@ -26,10 +29,35 @@ ICP::ICP(const cv::Mat &frontalFace)
     frontalFaceCloud_1_1   = frontalFaceCloud * 1.1;
     frontalFaceCloud_1_2   = frontalFaceCloud * 1.2;
 
-    cv::Mat teste = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));
-    tools::pointCloudToDepthImg(frontalFaceCloud, teste, {true, true, true}, 0.1);
+    cv::Mat pc;
+    frontalFaceCloud.convertTo(pc, CV_64FC1);
+    icpExternal = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 30, 5.0);
+    frontalFaceCloud_0_9.convertTo(pc, CV_64FC1);
+    icpExternal_0_9 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 30, 5.0);
+    frontalFaceCloud_1_1.convertTo(pc, CV_64FC1);
+    icpExternal_1_1 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 30, 5.0);
+    //IcpPointToPoint icp;
 
     std::cout << "ICP: Modelo 3D criado." << std::endl;
+
+    /*
+    for (float j = .0; j < 12.0; j += 0.1)
+    {
+        cv::Matx44d pose = tools::rotationMatrixTo44d(
+            tools::eulerAnglesToRotationMatrix(cv::Vec3d(0.0, j, 0.0))
+        );
+
+        cv::Mat newpose = cv::ppf_match_3d::transformPCPose(frontalFaceCloud, pose);
+
+        cv::Mat newposeFm = cv::Mat(frontalFace.rows*2, frontalFace.cols*3, CV_32FC1, cv::Scalar(0));
+        tools::pointCloudToDepthImg(newpose, newposeFm, {true, true, true}, {1.0, 1.0, 0.0});
+
+        cv::imshow("rotation", newposeFm);
+        cv::waitKey(80);
+    }
+    */
+
+
 
 //    std::cout << "ICP: Trainando detector de posição ." << std::endl;
 //     Now train the model
@@ -44,7 +72,7 @@ ICP::ICP(const cv::Mat &frontalFace)
 cv::Mat ICP::proccess(const cv::Mat &_imageCache, int pos, ImageLoader* imgLoader)
 {
     cv::Mat imageCache = _imageCache.clone();
-    //cv::Mat imageCache = frontalFaceCloud.clone();
+//    cv::Mat imageCache = frontalFaceCloud.clone();
     cv::Mat imageCloud;
     cv::Mat teste;
 
@@ -67,8 +95,7 @@ cv::Mat ICP::proccess(const cv::Mat &_imageCache, int pos, ImageLoader* imgLoade
     cv::moveWindow("frontal",0,0);
     cv::moveWindow("teste",300,0);
 
-    for (int l =0; l < 9; l++) {
-
+    for (int l =0; l < 0; l++) {
         cv::Matx44d pose;
         double residual = 0;
 
@@ -99,6 +126,58 @@ cv::Mat ICP::proccess(const cv::Mat &_imageCache, int pos, ImageLoader* imgLoade
         cv::moveWindow("new pose" + l, 220 + (l%5 * 180), 150 + (l < 5 ? 0 : 200));
 
     }
+
+    /**************************************************/
+    /**************************************************/
+    /**************************************************/
+    /**************************************************/
+//    int32_t dim = 3;
+//      int32_t num = 10000;
+
+      // allocate model and template memory
+//      double* M = (double*)calloc(3*num,sizeof(double));
+//      double* T = (double*)calloc(3*num,sizeof(double));
+
+      // set model and template points
+//      int32_t k=0;
+
+      // start with identity as initial transformation
+      // in practice you might want to use some kind of prediction here
+      Matrix R = Matrix::eye(3);
+      Matrix t(3,1);
+      double residual = 0;
+
+      for (int l =0; l < 3; l++) {
+
+          imageCloud.convertTo(teste, CV_64FC1);
+          switch (l) {
+          case 0: residual = icpExternal->fit((double *)teste.data, teste.rows, R, t, -1); break;
+          case 1: residual = icpExternal_0_9->fit((double *)teste.data, teste.rows, R, t, -1); break;
+          case 2: residual = icpExternal_1_1->fit((double *)teste.data, teste.rows, R, t, -1); break;
+          }
+          std::printf("ext. residual: %f\n", residual);
+
+//          // results
+//          std::cout << std::endl << "Transformation results:" << std::endl;
+//          std::cout << "R:" << std::endl << R << std::endl << std::endl;
+//          std::cout << "t:" << std::endl << t << std::endl << std::endl;
+//          std::cout << "Residual:"<<residual;
+
+          cv::Matx44d pose = tools::rotationMatrixTo44d((cv::Mat_<double>(3, 3) <<
+              R.val[0][0], R.val[0][1], R.val[0][2],
+              R.val[1][0], R.val[1][1], R.val[1][2],
+              R.val[2][0], R.val[2][1], R.val[2][2]
+          ));
+
+          cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
+
+          cv::Mat newposeFm = cv::Mat(frontalFace.rows*2, frontalFace.cols*3, CV_32FC1, cv::Scalar(0));
+          tools::pointCloudToDepthImg(newpose, newposeFm, {true, true, true}, {1.5, 1.5, 0.0});
+
+          cv::imshow("external" + l, newposeFm);
+          cv::moveWindow("external" + l,  220 + (l%5 * 180), 150 + (l < 5 ? 0 : 200));
+      }
+
     std::cout << "-------" << std::endl;
     cv::waitKey();
     return imageCloud;

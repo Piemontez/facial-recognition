@@ -21,6 +21,7 @@ AFM::AFM(ImageLoader *loader)
     std::vector<cv::Mat> imgsTrain;
     while(imgIt != imgs.end())
     {
+        if (rand() < rand() && rand() < rand())
         if ((*flagIt) & (RECOG_TRAIN | COMPARE_MAIN_TRAIN )) {
             imgsTrain.push_back(roi->proccess(*imgIt, pos, loader));
         }
@@ -53,10 +54,14 @@ AFM::AFM(ImageLoader *loader)
         }
         m.convertTo(afm, CV_32FC1, 1. / imgsTrain.size());
 
-        for(int i=0; i<temp.rows; i++)
-            for(int j=0; j<temp.cols; j++)
-                if (afm.at<float>(i,j) <= 0.17)
+        for(int i=0; i<afm.rows; i++)
+            for(int j=0; j<afm.cols; j++)
+                if (afm.at<float>(i,j) <= 0.1699
+                        || j < 39 || 76 < j
+                        || i < 53 || 93 < i )
                     afm.at<float>(i,j) = 0;
+
+        afm = imgsTrain.front();
 
     }
     std::cout << "AFM: Face genérica criada." << std::endl;

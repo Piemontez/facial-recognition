@@ -135,6 +135,11 @@ cv::Mat tools::eulerAnglesToRotationMatrix(const cv::Vec3d &theta)
 
 cv::Matx44d tools::rotationMatrixTo44d(cv::Mat r)
 {
+//    return cv::Matx44d(r.at<double>(0,0), r.at<double>(1,0), r.at<double>(2,0), 0,
+//                     r.at<double>(0,1), r.at<double>(1,1), r.at<double>(2,1), 0,
+//                     r.at<double>(0,2), r.at<double>(1,2), r.at<double>(2,2), 0,
+//                     0, 0, 0, 1);
+
     return cv::Matx44d(r.at<double>(0,0), r.at<double>(0,1), r.at<double>(0,2), 0,
                      r.at<double>(1,0), r.at<double>(1,1), r.at<double>(1,2), 0,
                      r.at<double>(2,0), r.at<double>(2,1), r.at<double>(2,2), 0,

@@ -11,6 +11,8 @@ namespace cv {
     }
 }
 
+class IcpPointToPlane;
+
 /**
  * @brief The Iterative closest point
  */
@@ -28,6 +30,11 @@ class ICP : public ImageProcessor
     cv::Mat frontalFaceCloud_1_2;
 
     cv::ppf_match_3d::ICP* icp;
+
+    IcpPointToPlane* icpExternal_0_9;
+    IcpPointToPlane* icpExternal;
+    IcpPointToPlane* icpExternal_1_1;
+
     cv::ppf_match_3d::PPF3DDetector* detector;
 
 public:
