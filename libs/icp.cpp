@@ -14,7 +14,7 @@ ICP::ICP(const cv::Mat &frontalFace)
 {
     this->frontalFace = frontalFace.clone();
 
-    icp = new cv::ppf_match_3d::ICP(50, 0.05, 2.0f, 4, cv::ppf_match_3d::ICP::ICP_SAMPLING_TYPE_UNIFORM);
+    icp = new cv::ppf_match_3d::ICP(150, 0.05, 2.5f, 10, cv::ppf_match_3d::ICP::ICP_SAMPLING_TYPE_UNIFORM);
     //icp = new cv::ppf_match_3d::ICP(100);
 
     tools::depthImgToPointCloud(frontalFace, frontalFaceCloud, {true, true, true}, 0.1);
@@ -31,11 +31,11 @@ ICP::ICP(const cv::Mat &frontalFace)
 
     cv::Mat pc;
     frontalFaceCloud.convertTo(pc, CV_64FC1);
-    icpExternal = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 30, 5.0);
+    icpExternal = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 10, 5.0);
     frontalFaceCloud_0_9.convertTo(pc, CV_64FC1);
-    icpExternal_0_9 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 30, 5.0);
+    icpExternal_0_9 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 10, 5.0);
     frontalFaceCloud_1_1.convertTo(pc, CV_64FC1);
-    icpExternal_1_1 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 30, 5.0);
+    icpExternal_1_1 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 10, 5.0);
     //IcpPointToPoint icp;
 
     std::cout << "ICP: Modelo 3D criado." << std::endl;
@@ -95,7 +95,7 @@ cv::Mat ICP::proccess(const cv::Mat &_imageCache, int pos, ImageLoader* imgLoade
     cv::moveWindow("frontal",0,0);
     cv::moveWindow("teste",300,0);
 
-    for (int l =0; l < 0; l++) {
+    for (int l =0; l < 9; l++) {
         cv::Matx44d pose;
         double residual = 0;
 
@@ -147,7 +147,7 @@ cv::Mat ICP::proccess(const cv::Mat &_imageCache, int pos, ImageLoader* imgLoade
       Matrix t(3,1);
       double residual = 0;
 
-      for (int l =0; l < 3; l++) {
+      for (int l =0; l < 0; l++) {
 
           imageCloud.convertTo(teste, CV_64FC1);
           switch (l) {

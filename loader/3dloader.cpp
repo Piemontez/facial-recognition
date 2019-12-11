@@ -162,7 +162,7 @@ std::vector<cv::Mat> ThreeLoader::images()
                 i = static_cast< std::vector<uint16_t>::size_type >((y * w) + x);
                 img.at<char>(y, x) = (data[i] < min || data[i] > (media + 15))
                         ? 0
-                        : (data[i] - min) * 3;
+                        : (data[i] - min) * 4;
             }
         }
 

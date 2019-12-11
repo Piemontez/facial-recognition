@@ -32,9 +32,14 @@ cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
     std::vector<cv::Rect> faces = faceD->getfaces(rgb);
     if (faces.size() > 0) {
         rgb = rgb(faces.front()).clone();
-        cv::Mat roi = image(faces.front()).clone();
 
+        /*Normaliza pose extraida com o processo ROI*/
         cv::Rect front = faces.front();
+        front.x = (image.cols / 2) - (+ front.width / 2);
+        front.y = (image.rows / 2) - (+ front.height / 2);
+        /**/
+
+        cv::Mat roi = image(front).clone();
 
         faces.front().x = 0;
         faces.front().y = 0;
@@ -43,11 +48,10 @@ cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
             cv::Mat rvec, tvec;
             this->estimatePoseDirection(rgb, shapes, rvec, tvec);
 
-            /*cv::face::drawFacemarks(rgb, shapes[0], cv::Scalar(255, 255, 255));
-            cv::imshow("rgbpoints", rgb);
-            cv::imshow("roi", roi);
-            cv::moveWindow("rgbpoints",300,0);
-            */
+            //cv::face::drawFacemarks(rgb, shapes[0], cv::Scalar(255, 255, 255));
+//            cv::imshow("rgbpoints", rgb);
+//            cv::imshow("roi", roi);
+//            cv::waitKey();
 
             this->rotateImage(roi.clone(), roi, rvec, tvec);
 
