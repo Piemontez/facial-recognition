@@ -183,7 +183,6 @@ void Tester::run()
                 int groupPos = 0;
                 int64_t timeTrainig = 0;
                 int64_t timeRecog = 0;
-                int64_t timeComp = 0;
                 _recogTrainImgs.clear();
                 _recogTrainLabels.clear();
                 _recogTestImgs.clear();
@@ -217,9 +216,9 @@ void Tester::run()
                 timeTrainig = cv::getTickCount() - timeTrainig;
 
                 std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
+                int VP = 0, FP = 0, FN = 0, VN = 0;
 
                 int posTest = 0;
-                int VP = 0, FP = 0, FN = 0, VN = 0;
                 for (auto trainImg: _recogTrainImgs) {
                     int64_t time = cv::getTickCount();
                     int label = recog->predict(trainImg);
@@ -255,7 +254,14 @@ void Tester::run()
 
                 this->saveTest("recog", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
 
-                //std::cout << "    Realizando teste de comparacao:" << testPos << std::endl;
+                std::cout << "    Realizando teste de comparacao:" << testPos << std::endl;
+                VP = 0, FP = 0, FN = 0, VN = 0;
+
+                recog->resetTrain();
+                timeTrainig = cv::getTickCount();
+                recog->train(_recogTrainImgs, _recogTrainLabels);
+                timeTrainig = cv::getTickCount() - timeTrainig;
+
                 /*
                 posTest = 0;
                 VP = 0; FP = 0; FN = 0; VN = 0;
@@ -270,8 +276,7 @@ void Tester::run()
                 }
                 */
 
-                //recog->algorithmName();
-                //testName
+                this->saveTest("compare", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
             }
         }
     }
