@@ -3,6 +3,7 @@
 #include "algorithmfactory.hpp"
 #include "imageloader.hpp"
 #include "imageprocessor.hpp"
+#include "tools.hpp"
 
 #include <iostream>
 #include <map>
@@ -146,7 +147,7 @@ void Tester::run()
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
             for (auto img: this->d_ptr->images) {
-                this->saveImgProc(img, "-Original", pos, 0);
+                tools::saveImgProc(img, "-Original", pos, 0);
                 //cv::imshow("original", img);
 
                 int permPos = 1;
@@ -155,7 +156,7 @@ void Tester::run()
                     img = pre->proccess(img.clone(), pos, imageLoader());
 
                     name += "-" + pre->name();
-                    this->saveImgProc(img, name, pos, permPos++);
+                    tools::saveImgProc(img, name, pos, permPos++);
                 }
 
                 if (img.channels() > 1) {
@@ -257,27 +258,6 @@ void Tester::run()
     }
 
     showResults(recogsNames, processorsNames, resultTests);
-}
-
-void Tester::saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos)
-{
-    cv::Mat rgb;
-    if (img.channels() == 1)
-        cv::cvtColor(img, rgb, cv::COLOR_GRAY2RGB);
-    else
-        rgb = img;
-
-    if (img.type() == CV_32FC1) {
-        cv::Mat tmp;
-        rgb.convertTo(tmp, CV_8UC3, 255);
-        rgb = tmp;
-    }
-
-    std::vector<int> qualityType;
-    qualityType.push_back(cv::IMWRITE_JPEG_QUALITY);
-    qualityType.push_back(95);
-
-    cv::imwrite("../tmp/" + std::to_string(imgId) + "-" + std::to_string(permPos) + permutation + ".jpg", rgb, qualityType);
 }
 
 /**

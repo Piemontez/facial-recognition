@@ -1,3 +1,5 @@
+#include "../tools.hpp"
+#include "../libs/3dviewer.hpp"
 #include "afm.hpp"
 
 #include "../processor/roi.hpp"
@@ -21,7 +23,7 @@ AFM::AFM(ImageLoader *loader)
     std::vector<cv::Mat> imgsTrain;
     while(imgIt != imgs.end())
     {
-        if (rand() < rand() && rand() < rand())
+        //if (rand() < rand() && rand() < rand())
         if ((*flagIt) & (RECOG_TRAIN | COMPARE_MAIN_TRAIN )) {
             imgsTrain.push_back(roi->proccess(*imgIt, pos, loader));
         }
@@ -39,9 +41,12 @@ AFM::AFM(ImageLoader *loader)
         cv::Mat m(imgs[0].rows, imgs[0].cols, CV_64FC1);
         m.setTo(cv::Scalar(0,0,0,0));
 
+        int pos = 1;
         std::vector<cv::Mat>::iterator imgIt = imgsTrain.begin();
         while(imgIt != imgsTrain.end())
         {
+            tools::saveImgProc(*imgIt, "-AFM", pos++, 0);
+
             (*imgIt).convertTo(temp, CV_64FC1);
 
             for(int i=0; i<temp.rows; i++)
@@ -69,6 +74,9 @@ AFM::AFM(ImageLoader *loader)
     //cv::imshow("afm",afm);
     //cv::moveWindow("afm",800,0);
     //cv::waitKey();
+
+    tools::saveImgProc(afm, "-AFM", 0, 0);
+    Viewer3D::view(afm);
 
     delete roi;
 }

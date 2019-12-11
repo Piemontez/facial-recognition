@@ -14,6 +14,10 @@ namespace tools {
 
     cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3d &theta);
     cv::Matx44d rotationMatrixTo44d(cv::Mat r);
+
+    void saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos);
+
+
 };
 
 #endif // TOOLS_HPP

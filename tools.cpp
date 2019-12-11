@@ -1,5 +1,7 @@
 #include "tools.hpp"
 
+#include <opencv4/opencv2/opencv.hpp>
+
 void tools::moveToRigth(cv::Mat &inout)
 {
     //if (inout.channels() == 3)
@@ -144,4 +146,27 @@ cv::Matx44d tools::rotationMatrixTo44d(cv::Mat r)
                      r.at<double>(1,0), r.at<double>(1,1), r.at<double>(1,2), 0,
                      r.at<double>(2,0), r.at<double>(2,1), r.at<double>(2,2), 0,
                      0, 0, 0, 1);
+}
+
+void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos)
+{
+    return;
+    cv::Mat rgb;
+    if (img.channels() == 1)
+        cv::cvtColor(img, rgb, cv::COLOR_GRAY2RGB);
+    else
+        rgb = img;
+
+    if (img.type() == CV_32FC1) {
+        cv::Mat tmp;
+        rgb.convertTo(tmp, CV_8UC3, 255);
+        rgb = tmp;
+    }
+
+    std::vector<int> qualityType;
+    qualityType.push_back(cv::IMWRITE_JPEG_QUALITY);
+    qualityType.push_back(95);
+
+    cv::imwrite("../tmp/byimg_" + std::to_string(imgId) + "-" + std::to_string(permPos) + permutation + ".jpg", rgb, qualityType);
+    cv::imwrite("../tmp/bystep_" + std::to_string(permPos) + "-" + std::to_string(imgId) + permutation + ".jpg", rgb, qualityType);
 }

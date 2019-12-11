@@ -24,7 +24,6 @@ add_compile_definitions(RECOGNIZER_FOLDER="")
 add_compile_definitions(TESTER_FOLDER="")
 
 
-
 # determine if OpenMP can/should be used
 option(USE_OPENMP "Enable OpenMP?" ON) # set to OFF to disable
 if(USE_OPENMP)
@@ -37,6 +36,15 @@ if(USE_OPENMP)
   message(STATUS "OpenMP not supported")
  endif(OPENMP_FOUND OR OpenMP_FOUND)
 endif(USE_OPENMP)
+
+# OPENGL
+# set(PLATFORM_SPECIFIC_LIBS "-lpthread")
+set(OpenGL_GL_PREFERENCE "LEGACY")
+
+find_package(OpenGL)
+find_package(GLUT)
+
+include_directories(. ${OPENGL_INCLUDE_DIR} ${GLUT_INCLUDE_DIR})
 
 # sources icp
 FILE(GLOB LIBICP_SRC_FILES "libs/icp/*.cpp")
@@ -71,6 +79,7 @@ add_executable(facerecog-tester
     libs/afm.cpp
     libs/icp.cpp
     libs/facedetection.cpp
+    libs/3dviewer.cpp
 #external
     ${LIBICP_SRC_FILES}
 )
@@ -78,6 +87,8 @@ add_executable(facerecog-tester
 target_link_libraries(facerecog-tester
   ${OpenCV_LIBS}
   ${JSONCPP_LIBRARIES}
+  ${OPENGL_LIBRARIES}
+  ${GLUT_LIBRARY}
   tensorflow
   #tensorflow_cc
   #tensorflow_framework
