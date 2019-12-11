@@ -15,8 +15,7 @@ PoseCorrection::PoseCorrection(ImageLoader *loader)
 
 cv::Mat PoseCorrection::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
-    icp->proccess(
+    return icp->proccess(
         ganpan->proccess(image, pos, imgLoader)
     , pos, imgLoader);
-    return image;
 }

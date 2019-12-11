@@ -22,6 +22,9 @@ GanPan::GanPan()
 
 cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
+//    cv::imshow("teste", image);
+//    cv::moveWindow("teste",  0,300);
+
     cv::Mat rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
 
     //cv::imshow("processed", rgb);

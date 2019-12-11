@@ -42,6 +42,7 @@ public:
     void selectAndLoadImages();
     void run();
 
+    void saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos);
     void saveTest();
     void showResults(std::vector<std::string> recogsNames,
                      std::vector<std::string> processorsNames,

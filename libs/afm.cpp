@@ -61,13 +61,13 @@ AFM::AFM(ImageLoader *loader)
                         || i < 53 || 93 < i )
                     afm.at<float>(i,j) = 0;
 
-        afm = imgsTrain.front();
+        //afm = imgsTrain.front();
 
     }
     std::cout << "AFM: Face genérica criada." << std::endl;
 
-    cv::imshow("afm",afm);
-    cv::moveWindow("afm",800,0);
+    //cv::imshow("afm",afm);
+    //cv::moveWindow("afm",800,0);
     //cv::waitKey();
 
     delete roi;
