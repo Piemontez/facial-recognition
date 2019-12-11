@@ -127,6 +127,8 @@ void Tester::run()
     std::vector< std::string > processorsNames;
     std::vector< std::tuple<int, int, int, int> > resultTests; //lista de <VP, FP, FN, VN>;
 
+    this->addCsvHeader();
+
     //percorre as permutações de pré processamento
     for (auto && perms: _permutations) {
         std::cout << "    Realizando pré-processando." << std::endl;
@@ -148,7 +150,6 @@ void Tester::run()
             int pos = 0;
             for (auto img: this->d_ptr->images) {
                 tools::saveImgProc(img, "-Original", pos, 0);
-                //cv::imshow("original", img);
 
                 int permPos = 1;
                 std::string name;
@@ -165,23 +166,24 @@ void Tester::run()
 
                 imgProcessed.push_back(img);
 
-                //cv::imshow("processed", img);
-                //cv::waitKey();
                 pos++;
             }
         }
-        continue;
+
         //Todo: remover para inicar treinamento
 
 
         //Percorre os algorítmos de reconhecimento e realiza os testes de reconhecimento
         for (auto && recog: recogs) {
             std::cout << "    Reconhecedor: " << recog->algorithmName() << std::endl;
-            std::cout << "    Separando imagens para trainamento." << std::endl;
-
             for (int testPos = 0; testPos < testGroups.size(); testPos++)
             {
+                std::cout << "    Grupo teste: " << testPos << std::endl;
+
                 int groupPos = 0;
+                int64_t timeTrainig = 0;
+                int64_t timeRecog = 0;
+                int64_t timeComp = 0;
                 _recogTrainImgs.clear();
                 _recogTrainLabels.clear();
                 _recogTestImgs.clear();
@@ -191,6 +193,7 @@ void Tester::run()
                 _compareTestImgs.clear();
                 _compareTestLabels.clear();
 
+                std::cout << "    Separando imagens para trainamento." << std::endl;
                 //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
                 for (auto labels: testGroups) {
                     if (groupPos == testPos) {
@@ -207,34 +210,50 @@ void Tester::run()
                     groupPos++;
                 }
 
+                std::cout << "    Realizando treinamento." << std::endl;
                 recog->resetTrain();
+                timeTrainig = cv::getTickCount();
                 recog->train(_recogTrainImgs, _recogTrainLabels);
+                timeTrainig = cv::getTickCount() - timeTrainig;
 
-                //std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
+                std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
+
                 int posTest = 0;
                 int VP = 0, FP = 0, FN = 0, VN = 0;
                 for (auto trainImg: _recogTrainImgs) {
+                    int64_t time = cv::getTickCount();
+                    int label = recog->predict(trainImg);
+                    timeRecog += cv::getTickCount() - time;
+
                     testSensitivitiesSpecificity(true,
-                                                 recog->predict(trainImg),
+                                                 label,
                                                  _recogTrainLabels[posTest],
                                                  VP, FP, FN, VN);
                     posTest++;
                 }
+
                 posTest = 0;
                 for (auto testImg: _recogTestImgs) {
+                    int64_t time = cv::getTickCount();
+                    int label = recog->predict(testImg);
+                    timeRecog += cv::getTickCount() - time;
+
                     int realLabel = _recogTestLabels[posTest];
 
                     testSensitivitiesSpecificity(std::find(_recogTrainLabels.begin(), _recogTrainLabels.end(), realLabel) != _recogTrainLabels.end(),
-                                                 recog->predict(testImg),
+                                                 label,
                                                  realLabel,
                                                  VP, FP, FN, VN);
                     posTest++;
                 }
+                timeRecog = timeRecog / (_recogTrainImgs.size() + _recogTestImgs.size());
 
                 //Contabiliza o teste
                 recogsNames.push_back(recog->algorithmName());
                 processorsNames.push_back(processorName);
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
+
+                this->saveTest("recog", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
 
                 //std::cout << "    Realizando teste de comparacao:" << testPos << std::endl;
                 /*
@@ -351,11 +370,53 @@ void Tester::testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int 
     }
 }
 
-
-
-void Tester::saveTest()
+void Tester::addCsvHeader()
 {
+    std::vector<std::string > cols;
+    cols.push_back("technique");
+    cols.push_back("processors");
 
+    // Tempos
+    cols.push_back("cpu frequencia");
+    cols.push_back("training time");
+    cols.push_back("predict time");
+
+    // Results
+    cols.push_back("VP");
+    cols.push_back("FP");
+    cols.push_back("VN");
+    cols.push_back("VN");
+
+    tools::appendCsv("results", cols);
+}
+
+
+void Tester::saveTest(std::string type,
+                      std::string recogName,
+                      std::string processorName,
+                      int64_t timeTrainig,
+                      int64_t timeRecog,
+                      std::tuple<int, int, int, int> resultTest)
+{
+    int VP, FP, FN, VN;
+    std::tie(VP, FP, FN, VN) = resultTest;
+
+    std::vector<std::string > cols;
+    cols.push_back(recogName);
+    cols.push_back(processorName);
+
+    // Tempos
+    cols.push_back(std::to_string(static_cast<int64_t>(cv::getTickFrequency())));
+    cols.push_back(std::to_string(timeTrainig));
+    cols.push_back(std::to_string(timeRecog));
+
+    // Results
+    cols.push_back(std::to_string(VP));
+    cols.push_back(std::to_string(FP));
+    cols.push_back(std::to_string(FN));
+    cols.push_back(std::to_string(VN));
+
+    tools::appendCsv("results", cols);
 }
 
 void Tester::showResults(std::vector< std::string > recogsNames, std::vector< std::string > processorsNames, std::vector< std::tuple<int, int, int, int> > resultTests)

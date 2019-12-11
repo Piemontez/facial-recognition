@@ -31,10 +31,10 @@ Recognizer *AlgorithmFactory::createAlgorithm(std::string name)
 std::vector<Recognizer *> AlgorithmFactory::createAllAlgorithm()
 {
     std::vector<Recognizer *> rs;
-    rs.push_back(new LPP);
-    rs.push_back(new SVMOpenCV);
-    rs.push_back(new LDA);
     rs.push_back(new PCA);
+    rs.push_back(new LDA);
+    //rs.push_back(new SVMOpenCV);
+    //rs.push_back(new LPP);
     return rs;
 }
 

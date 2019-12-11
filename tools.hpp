@@ -16,7 +16,7 @@ namespace tools {
     cv::Matx44d rotationMatrixTo44d(cv::Mat r);
 
     void saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos);
-
+    void appendCsv(std::string filename, std::vector<std::string > cols);
 
 };
 

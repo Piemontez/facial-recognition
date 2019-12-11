@@ -123,7 +123,7 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
 
         cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
         //std::cout << "residual:"  << residual << std::endl;
-        std::printf("residual: %f\n", residual);
+        //std::printf("residual: %f\n", residual);
 
         /*
         cv::Mat newposeFm;

@@ -1,5 +1,6 @@
 #include "tools.hpp"
 
+#include <fstream>
 #include <opencv4/opencv2/opencv.hpp>
 
 void tools::moveToRigth(cv::Mat &inout)
@@ -155,7 +156,7 @@ void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int per
     if (img.channels() == 1)
         cv::cvtColor(img, rgb, cv::COLOR_GRAY2RGB);
     else
-        rgb = img;
+        rgb = img.clone();
 
     if (img.type() == CV_32FC1) {
         cv::Mat tmp;
@@ -169,4 +170,15 @@ void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int per
 
     cv::imwrite("../tmp/byimg_" + std::to_string(imgId) + "-" + std::to_string(permPos) + permutation + ".jpg", rgb, qualityType);
     cv::imwrite("../tmp/bystep_" + std::to_string(permPos) + "-" + std::to_string(imgId) + permutation + ".jpg", rgb, qualityType);
+}
+
+void tools::appendCsv(std::string filename, std::vector<std::string> cols)
+{
+
+    std::ofstream outfile;
+
+    outfile.open("../tmp/results.csv", std::ios_base::app); // append instead of overwrite
+    for(std::string col: cols)
+        outfile << col << ";";
+    outfile << std::endl;
 }

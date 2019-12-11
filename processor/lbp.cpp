@@ -12,16 +12,25 @@ cv::Mat LBP::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
     cv::Mat out;
 
-    cv::Mat planes[image.channels()];
-    cv::split(image, planes);
+    if (image.type() == CV_32FC1) {
+        if (image.channels() == 1)
+            image.convertTo(out, CV_8UC1, 255);
+        else
+            image.convertTo(out, CV_8UC3, 255);
+    } else
+        out = image.clone();
 
-    for (int x = 0; x < image.channels(); x++)
+    cv::Mat planes[out.channels()];
+    cv::split(out, planes);
+
+    for (int x = 0; x < out.channels(); x++)
     {
         OLBP_<unsigned char>(planes[x], out);
         planes[x] = out;
     }
 
-    cv::merge(planes, image.channels(), out);
+    cv::merge(planes, out.channels(), out);
+
     return out;
 }
 

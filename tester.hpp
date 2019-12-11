@@ -42,7 +42,14 @@ public:
     void selectAndLoadImages();
     void run();
 
-    void saveTest();
+    void addCsvHeader();
+    void saveTest(std::string type,
+                  std::string recogName,
+                  std::string processorName,
+                  int64_t timeTrainig,
+                  int64_t timeRecog,
+                  std::tuple<int, int, int, int> resultTest);
+
     void showResults(std::vector<std::string> recogsNames,
                      std::vector<std::string> processorsNames,
                      std::vector<std::tuple<int, int, int, int> > resultTests);
