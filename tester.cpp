@@ -9,12 +9,27 @@
 #include <map>
 #include <opencv4/opencv2/opencv.hpp>
 
+struct Image {
+    cv::Mat image;
+    int label;
+    int flags;
+    cv::Mat processed;
+
+    Image(cv::Mat& image, int label, int flags)
+    {
+        this->image = image;
+        this->label = label;
+        this->flags = flags;
+    }
+};
+
 struct TesterPrivate {
     int leaveOneOutGroupSize{5};
 
-    std::vector<cv::Mat> images;
-    std::vector<int> labels;
-    std::vector<int> flags;
+    std::vector< Image > images;
+    //std::vector<cv::Mat> images;
+    //std::vector<int> labels;
+    //std::vector<int> flags;
 
     std::vector<AlgorithmTest*> tester;
     std::vector<ImageProcessor *> imgsProcessorOrdered;
@@ -34,12 +49,24 @@ std::string Tester::name()
 
 std::vector<cv::Mat> Tester::images()
 {
-    return this->d_ptr->images;
+    std::vector<cv::Mat> images;
+
+    for (auto tp: this->d_ptr->images) {
+        images.push_back(tp.image);
+    }
+
+    return images;
 }
 
 std::vector<int> Tester::labels()
 {
-    return this->d_ptr->labels;
+    std::vector<int> labels;
+
+    for (auto tp: this->d_ptr->images) {
+        labels.push_back(tp.label);
+    }
+
+    return labels;
 }
 
 std::vector<AlgorithmTest*> Tester::algorithms()
@@ -88,10 +115,22 @@ void Tester::run()
 
     std::cout << "  Carregando imagens." << std::endl;
 
-    if (imageLoader()) {
-        this->d_ptr->images = imageLoader()->images();
-        this->d_ptr->labels = imageLoader()->labels();
-        this->d_ptr->flags = imageLoader()->flags();
+    if (imageLoader()) {                
+        auto images = imageLoader()->images();
+        std::vector<cv::Mat>::iterator imIt = images.begin();
+        std::vector<int>::iterator lbIt =imageLoader()->labels().begin();
+        std::vector<int>::iterator flIt =imageLoader()->flags().begin();
+
+        for(;imIt != images.end();)
+        {
+            this->d_ptr->images.push_back(
+                Image(*imIt, *lbIt, *flIt)
+            );
+
+            imIt++;
+            lbIt++;
+            flIt++;
+        }
     }
 
     if (!images().size()){
@@ -133,7 +172,6 @@ void Tester::run()
     for (auto && perms: _permutations) {
         std::cout << "    Realizando pré-processando." << std::endl;
         std::string processorName;
-        std::vector<cv::Mat> imgProcessed;
         std::vector<cv::Mat> _recogTrainImgs, _recogTestImgs, _compareTestImgs;
         std::vector<int> _recogTrainLabels, _recogTestLabels, _compareTestLabels;
         std::vector<std::tuple<cv::Mat, cv::Mat>> _compareTrainImgs;
@@ -148,7 +186,8 @@ void Tester::run()
         //cv::imwrite();
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
-            for (auto img: this->d_ptr->images) {
+            for (auto && tp: this->d_ptr->images) {
+                auto img = tp.image;
                 tools::saveImgProc(img, "-Original", pos, 0);
 
                 int permPos = 1;
@@ -164,8 +203,11 @@ void Tester::run()
                     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
                 }
 
-                imgProcessed.push_back(img);
+                tp.processed = img;
 
+                cv::imshow("image", tp.image);
+                cv::imshow("processed", tp.processed);
+                cv::waitKey();
                 pos++;
             }
         }
@@ -194,16 +236,18 @@ void Tester::run()
 
                 std::cout << "    Separando imagens para trainamento." << std::endl;
                 //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
-                for (auto labels: testGroups) {
-                    if (groupPos == testPos) {
-                        for (auto imgPos: labels) {
-                            _recogTestImgs.push_back(imgProcessed[imgPos]);
-                            _recogTestLabels.push_back(this->d_ptr->labels[imgPos]);
-                        }
-                    } else {
-                        for (auto imgPos: labels) {
-                            _recogTrainImgs.push_back(imgProcessed[imgPos]);
-                            _recogTrainLabels.push_back(this->d_ptr->labels[imgPos]);
+                for (auto labelsTest: testGroups) {/*grupos de testes*/
+                    for (auto labelTest: labelsTest) {/*labels do grupo*/
+                        for (auto tp: this->d_ptr->images) {
+                            if (labelTest == tp.label) {
+                                if (groupPos == testPos) {
+                                    _recogTestImgs.push_back(tp.processed);
+                                    _recogTestLabels.push_back(tp.label);
+                                } else {
+                                    _recogTrainImgs.push_back(tp.processed);
+                                    _recogTrainLabels.push_back(tp.label);
+                                }
+                            }
                         }
                     }
                     groupPos++;
@@ -333,11 +377,10 @@ std::vector<std::vector<int> > Tester::leaveOneOutGroups()
 
     std::vector<int> sortedTrain;
     int pos = -1;
-    for (int flag: this->d_ptr->flags) {
+    for (auto tp: this->d_ptr->images) {
         pos++;
-        int label = this->d_ptr->labels[pos];
-        if ((flag | RECOG_TRAIN) && !std::binary_search(sortedTrain.begin(), sortedTrain.end(), label))
-            sortedTrain.push_back(label);
+        if ((tp.flags | RECOG_TRAIN) && !std::binary_search(sortedTrain.begin(), sortedTrain.end(), tp.label))
+            sortedTrain.push_back(tp.label);
     }
 
     int imagesPerGroup = sortedTrain.size() / d_ptr->leaveOneOutGroupSize;
