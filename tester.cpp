@@ -24,12 +24,12 @@ struct Image {
 };
 
 struct Compare {
-    cv::Mat r;
     cv::Mat l;
-    Compare(cv::Mat &r, cv::Mat &l)
+    cv::Mat r;
+    Compare(cv::Mat &l, cv::Mat &r)
     {
+        this->l = l;
         this->r = r;
-        this->r = l;
     }
 };
 
@@ -240,7 +240,7 @@ void Tester::run()
                 std::cout << "    Separando imagens para trainamento." << std::endl;
                 //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
                 cv::Mat compareTrain;
-                int lastLabel = 0;
+                int lastLabel = -1;
                 for (auto labelsTest: testGroups) {/*grupos de testes*/
                     for (auto labelTest: labelsTest) {/*labels do grupo*/
                         for (auto tp: this->d_ptr->images) {
@@ -258,13 +258,22 @@ void Tester::run()
                                 }
 
                                 if (lastLabel == tp.label) {
-                                    if (tp.flags & COMPARE_TRAIN) {
+                                    if ((tp.flags & COMPARE_TRAIN) && groupPos != testPos) {
                                         _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
                                         _compareTrainLabels.push_back(0);
                                     }
-                                    if (tp.flags & COMPARE_TEST) {
+                                    if ((tp.flags & COMPARE_TEST) && groupPos == testPos) {
                                         _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
                                         _compareTestLabels.push_back(0);
+                                    }
+                                } else if (lastLabel > -1) {
+                                    if ((tp.flags & COMPARE_TRAIN) && groupPos != testPos) {
+                                        _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
+                                        _compareTrainLabels.push_back(1);
+                                    }
+                                    else if ((tp.flags & COMPARE_TEST) && groupPos == testPos) {
+                                        _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
+                                        _compareTestLabels.push_back(1);
                                     }
                                 }
                                 lastLabel = tp.label;
@@ -323,23 +332,29 @@ void Tester::run()
                 VP = 0, FP = 0, FN = 0, VN = 0;
 
                 recog->resetTrain();
+                std::vector<cv::Mat> images;
+                for (auto pair:_compareTrainImgs) {
+                    cv::Mat out;
+                    cv::hconcat(pair.l, pair.r, out);
+                    images.push_back(out);
+                }
                 timeTrainig = cv::getTickCount();
-                recog->train(_recogTrainImgs, _recogTrainLabels);
+                recog->train(images, _compareTrainLabels);
                 timeTrainig = cv::getTickCount() - timeTrainig;
 
-                /*
                 posTest = 0;
-                VP = 0; FP = 0; FN = 0; VN = 0;
-                for (auto testImg: _testImgs)
-                {
-                    if (test(testImg, testImg) == _testLabels[posTest]) {
+                for (auto testImg: _compareTestImgs) {
+                    int64_t time = cv::getTickCount();
+                    int label = recog->compare(testImg.l, testImg.r);
+                    timeRecog += cv::getTickCount() - time;
 
-                    } else {
-
-                    }
+                    testSensitivitiesSpecificity(_compareTestLabels[posTest] ? true : false,
+                                                 label,
+                                                 _compareTestLabels[posTest],
+                                                 VP, FP, FN, VN);
                     posTest++;
                 }
-                */
+                timeRecog = timeRecog / _compareTestImgs.size();
 
                 this->saveTest("compare", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
             }
