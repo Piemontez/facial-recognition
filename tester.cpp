@@ -23,6 +23,16 @@ struct Image {
     }
 };
 
+struct Compare {
+    cv::Mat r;
+    cv::Mat l;
+    Compare(cv::Mat &r, cv::Mat &l)
+    {
+        this->r = r;
+        this->r = l;
+    }
+};
+
 struct TesterPrivate {
     int leaveOneOutGroupSize{5};
 
@@ -115,11 +125,13 @@ void Tester::run()
 
     std::cout << "  Carregando imagens." << std::endl;
 
-    if (imageLoader()) {                
+    if (imageLoader()) {
         auto images = imageLoader()->images();
+        auto labels = imageLoader()->labels();
+        auto flags = imageLoader()->flags();
         std::vector<cv::Mat>::iterator imIt = images.begin();
-        std::vector<int>::iterator lbIt =imageLoader()->labels().begin();
-        std::vector<int>::iterator flIt =imageLoader()->flags().begin();
+        std::vector<int>::const_iterator lbIt = labels.begin();
+        std::vector<int>::iterator flIt = flags.begin();
 
         for(;imIt != images.end();)
         {
@@ -135,12 +147,6 @@ void Tester::run()
 
     if (!images().size()){
         std::cout << "  Nenhuma imagem carregada." << std::endl;
-        std::cout << "  Teste finalizado." << std::endl;
-        return;
-    }
-
-    if (images().size() != labels().size()) {
-        std::cout << "  A quantidade de labels é diferente da quantidade de imagens." << std::endl;
         std::cout << "  Teste finalizado." << std::endl;
         return;
     }
@@ -172,10 +178,10 @@ void Tester::run()
     for (auto && perms: _permutations) {
         std::cout << "    Realizando pré-processando." << std::endl;
         std::string processorName;
-        std::vector<cv::Mat> _recogTrainImgs, _recogTestImgs, _compareTestImgs;
-        std::vector<int> _recogTrainLabels, _recogTestLabels, _compareTestLabels;
-        std::vector<std::tuple<cv::Mat, cv::Mat>> _compareTrainImgs;
-        std::vector<int> _compareTrainLabels;
+        std::vector<cv::Mat> _recogTrainImgs, _recogTestImgs;
+        std::vector<Compare> _compareTrainImgs, _compareTestImgs;
+        std::vector<int> _recogTrainLabels, _recogTestLabels,
+                        _compareTrainLabels, _compareTestLabels;
 
 
         for (auto && pre: perms) {
@@ -205,9 +211,6 @@ void Tester::run()
 
                 tp.processed = img;
 
-                cv::imshow("image", tp.image);
-                cv::imshow("processed", tp.processed);
-                cv::waitKey();
                 pos++;
             }
         }
@@ -236,10 +239,16 @@ void Tester::run()
 
                 std::cout << "    Separando imagens para trainamento." << std::endl;
                 //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
+                cv::Mat compareTrain;
+                int lastLabel = 0;
                 for (auto labelsTest: testGroups) {/*grupos de testes*/
                     for (auto labelTest: labelsTest) {/*labels do grupo*/
                         for (auto tp: this->d_ptr->images) {
                             if (labelTest == tp.label) {
+                                if (tp.flags & COMPARE_MAIN_TRAIN) {
+                                    compareTrain = tp.processed;
+                                }
+
                                 if (groupPos == testPos) {
                                     _recogTestImgs.push_back(tp.processed);
                                     _recogTestLabels.push_back(tp.label);
@@ -247,6 +256,18 @@ void Tester::run()
                                     _recogTrainImgs.push_back(tp.processed);
                                     _recogTrainLabels.push_back(tp.label);
                                 }
+
+                                if (lastLabel == tp.label) {
+                                    if (tp.flags & COMPARE_TRAIN) {
+                                        _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
+                                        _compareTrainLabels.push_back(0);
+                                    }
+                                    if (tp.flags & COMPARE_TEST) {
+                                        _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
+                                        _compareTestLabels.push_back(0);
+                                    }
+                                }
+                                lastLabel = tp.label;
                             }
                         }
                     }
@@ -421,6 +442,7 @@ void Tester::testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int 
 void Tester::addCsvHeader()
 {
     std::vector<std::string > cols;
+    cols.push_back("test type");
     cols.push_back("technique");
     cols.push_back("processors");
 
@@ -450,6 +472,7 @@ void Tester::saveTest(std::string type,
     std::tie(VP, FP, FN, VN) = resultTest;
 
     std::vector<std::string > cols;
+    cols.push_back(type);
     cols.push_back(recogName);
     cols.push_back(processorName);
 

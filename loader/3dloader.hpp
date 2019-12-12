@@ -9,7 +9,7 @@ class ThreeLoader : public ImageLoader
     Json::Value root;
     std::vector<std::string> _files;
     std::vector<std::string> _filesRBG;
-    std::vector<std::string> _labels;
+    std::vector<int> _labels;
     std::vector<int> _flags;
 public:
     ThreeLoader();

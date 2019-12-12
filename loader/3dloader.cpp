@@ -27,11 +27,13 @@ ThreeLoader::ThreeLoader() {
     if (!root["_faces"].empty()) {
         Json::Value facesUUIDs = root["_faces"]; //Lista com população
 
+        int labelId = -1;
         for (auto && i = facesUUIDs.begin(); i != facesUUIDs.end(); i++)
         {
+            labelId++;
             std::string uuid = (*i).asString();
-
             Json::Value voluntary = root[uuid];
+
             if (voluntary.empty()) continue;
 
             if (voluntary["front"].isArray() && voluntary["front"].begin()->isObject()) {
@@ -43,7 +45,7 @@ ThreeLoader::ThreeLoader() {
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _filesRBG.push_back(rap3dfFolder + rgbPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(DEPTH | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
             }
 
@@ -56,7 +58,7 @@ ThreeLoader::ThreeLoader() {
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _filesRBG.push_back(rap3dfFolder + rgbPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(DEPTH | RITH | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -69,7 +71,7 @@ ThreeLoader::ThreeLoader() {
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _filesRBG.push_back(rap3dfFolder + rgbPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(DEPTH | LEFT | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -82,7 +84,7 @@ ThreeLoader::ThreeLoader() {
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _filesRBG.push_back(rap3dfFolder + rgbPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(DEPTH | TOP | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -95,7 +97,7 @@ ThreeLoader::ThreeLoader() {
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _filesRBG.push_back(rap3dfFolder + rgbPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(DEPTH | DOWN | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -108,7 +110,7 @@ ThreeLoader::ThreeLoader() {
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _filesRBG.push_back(rap3dfFolder + rgbPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(DEPTH | RANDOM | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
         }
@@ -203,10 +205,9 @@ std::vector<int> ThreeLoader::labels()
 {
     std::vector<int> labels;
 
-    int pos = 0;
     for (auto && label: _labels)
     {
-        labels.push_back( pos++ );
+        labels.push_back( label );
     }
 
     return labels;
@@ -216,9 +217,9 @@ std::vector<int> ThreeLoader::flags()
 {
     std::vector<int> flags;
 
-    for (auto && label: _flags)
+    for (auto && flag: _flags)
     {
-        flags.push_back(label);
+        flags.push_back(flag);
     }
 
     return flags;
