@@ -38,66 +38,67 @@ VisLoader::VisLoader() {
                 //coleta primeira imagem frontal
                 Json::Value front = *voluntary["front"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["rgb"].asString();
+                std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _labels.push_back(uuid);
-                _flags.push_back(DEPTH | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
+                _flags.push_back(RBG | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
             }
+            continue;
 
             if (voluntary["right"].isArray() && voluntary["right"].begin()->isObject()) {
                 //coleta primeira imagem frontal
                 Json::Value front = *voluntary["front"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["rgb"].asString();
+                std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _labels.push_back(uuid);
-                _flags.push_back(DEPTH | RITH | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+                _flags.push_back(RBG | RITH | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["left"].isArray() && voluntary["left"].begin()->isObject()) {
                 //coleta primeira imagem frontal
                 Json::Value front = *voluntary["front"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["rgb"].asString();
+                std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _labels.push_back(uuid);
-                _flags.push_back(DEPTH | LEFT | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+                _flags.push_back(RBG | LEFT | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["up"].isArray() && voluntary["up"].begin()->isObject()) {
                 //coleta primeira imagem frontal
                 Json::Value front = *voluntary["front"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["rgb"].asString();
+                std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _labels.push_back(uuid);
-                _flags.push_back(DEPTH | TOP | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+                _flags.push_back(RBG | TOP | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["down"].isArray() && voluntary["down"].begin()->isObject()) {
                 //coleta primeira imagem frontal
                 Json::Value front = *voluntary["front"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["rgb"].asString();
+                std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _labels.push_back(uuid);
-                _flags.push_back(DEPTH | DOWN | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+                _flags.push_back(RBG | DOWN | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
             if (voluntary["burned"].isArray() && voluntary["burned"].begin()->isObject()) {
                 //coleta primeira imagem frontal
                 Json::Value front = *voluntary["front"].begin();
                 //endereço imagem frontal
-                std::string dethPath = front["rgb"].asString();
+                std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
                 _labels.push_back(uuid);
-                _flags.push_back(DEPTH | RANDOM | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
+                _flags.push_back(RBG | RANDOM | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
         }
     }

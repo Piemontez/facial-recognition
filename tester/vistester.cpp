@@ -1,5 +1,6 @@
 #include "vistester.hpp"
 
+#include "../processor/roi.hpp"
 #include "../loader/visloader.hpp"
 #include "../processor/gaussianblur.hpp"
 #include "../processor/lbp.hpp"
@@ -10,8 +11,9 @@
 VisTester::VisTester() {
     setImageLoader(new VisLoader);
 
-    addPreProcessor(new GaussianBlur);
-    addPreProcessor(new LBP);
+    addPreProcessorOrderFixed(new ROI());
+//    addPreProcessor(new GaussianBlur);
+//    addPreProcessor(new LBP);
     addPreProcessor(new DCT);
 }
 

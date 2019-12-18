@@ -20,6 +20,11 @@ cv::Mat ROI::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
     cv::Mat rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
 
+    if (imgLoader->flags().front() & DEPTH)
+        rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
+    else
+        rgb = image.clone();
+
 //    cv::imshow("image", image);
 //    cv::imshow("rgb", rgb);
 //    cv::waitKey();

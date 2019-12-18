@@ -22,7 +22,7 @@ namespace tools {
     cv::Mat eulerAnglesToRotationMatrix(const cv::Vec3d &theta);
     cv::Matx44d rotationMatrixTo44d(cv::Mat r);
 
-    void saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos);
+    void saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos, bool blackToWhite = false);
     void appendCsv(std::string filename, std::vector<std::string > cols);
 
     cv::Mat transformPCPose(cv::Mat pc, const cv::Matx44d& Pose);

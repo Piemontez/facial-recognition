@@ -1,5 +1,6 @@
 #include "irtester.hpp"
 
+#include "../processor/roi.hpp"
 #include "../loader/irloader.hpp"
 #include "../processor/gaussianblur.hpp"
 #include "../processor/lbp.hpp"
@@ -10,8 +11,9 @@
 IRTester::IRTester() {
     setImageLoader(new IrLoader);
 
-    addPreProcessor(new GaussianBlur);
-    addPreProcessor(new LBP);
+    addPreProcessorOrderFixed(new ROI());
+    //addPreProcessor(new GaussianBlur);
+//    addPreProcessor(new LBP);
     addPreProcessor(new DCT);
 }
 

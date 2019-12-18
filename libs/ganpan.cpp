@@ -37,6 +37,12 @@ cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
     if (faces.size() > 0) {
         rgb = rgb(faces.front()).clone();
 
+        {
+            cv::Mat newposeFm = cv::Mat(image.rows, image.cols, CV_8UC3, cv::Scalar(0));
+            rgb.copyTo(newposeFm(faces.front()));
+            tools::saveImgProc(newposeFm, "-ROI-RGB", pos, 1, true);
+        }
+
         /*Normaliza pose extraida com o processo ROI*/
         cv::Rect front = faces.front();
         front.x = (image.cols / 2) - (+ front.width / 2);

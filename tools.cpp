@@ -224,7 +224,7 @@ cv::Matx44d tools::rotationMatrixTo44d(cv::Mat r)
                      0, 0, 0, 1);
 }
 
-void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos)
+void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos, bool blackToWhite)
 {
 //    return;
     cv::Mat rgb;
@@ -237,6 +237,25 @@ void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int per
         cv::Mat tmp;
         rgb.convertTo(tmp, CV_8UC3, 255);
         rgb = tmp;
+    }
+
+    if (blackToWhite) {
+        std::vector<cv::Mat> splited_frame;
+        //Read your frame
+        cv::split(rgb, splited_frame);
+
+        for (int y = 0; y < rgb.rows; y++) {
+            for (int x = 0; x < rgb.cols; x++) {
+                if (!splited_frame[0].at<char>(y,x) && !splited_frame[1].at<char>(y,x) && !splited_frame[2].at<char>(y,x))
+                {
+                    splited_frame[0].at<char>(y,x) = static_cast<char>(255);
+                    splited_frame[1].at<char>(y,x) = static_cast<char>(255);
+                    splited_frame[2].at<char>(y,x) = static_cast<char>(255);
+                }
+            }
+        }
+
+        cv::merge(splited_frame, rgb);
     }
 
     std::vector<int> qualityType;

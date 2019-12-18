@@ -48,6 +48,7 @@ ThreeLoader::ThreeLoader() {
                 _labels.push_back(labelId);
                 _flags.push_back(DEPTH | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
             }
+            continue;
 
             if (voluntary["right"].isArray() && voluntary["right"].begin()->isObject()) {
                 //coleta primeira imagem frontal

@@ -23,6 +23,9 @@ cv::Mat LBP::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
     cv::Mat planes[out.channels()];
     cv::split(out, planes);
 
+//    OLBP_<unsigned char>(planes[2], out);
+//    return out;
+
     for (int x = 0; x < out.channels(); x++)
     {
         OLBP_<unsigned char>(planes[x], out);

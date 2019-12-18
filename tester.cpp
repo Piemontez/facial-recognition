@@ -193,15 +193,16 @@ void Tester::run()
             int pos = 0;
             for (auto && tp: this->d_ptr->images) {
                 auto img = tp.image;
-                tools::saveImgProc(img, "-Original", pos, 0);
+                tools::saveImgProc(img, "-Original-" + this->name(), pos, 0, false);
 
                 int permPos = 1;
                 std::string name;
                 for (auto && pre: perms) {
                     img = pre->proccess(img.clone(), pos, imageLoader());
-
                     name += "-" + pre->name();
-                    tools::saveImgProc(img, name, pos, permPos++);
+
+                    //cv::imshow(name, img); cv::waitKey(2000);
+                    tools::saveImgProc(img, name + "-" + this->name(), pos, permPos++);
                 }
 
                 if (img.channels() > 1) {
@@ -213,6 +214,7 @@ void Tester::run()
                 pos++;
             }
         }
+        continue;
 
         //Todo: remover para inicar treinamento
 

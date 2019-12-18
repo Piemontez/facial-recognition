@@ -16,7 +16,7 @@ ICP::ICP(const cv::Mat &frontalFace)
 {
     this->frontalFace = frontalFace.clone();
 
-    icp = new cv::ppf_match_3d::ICP(150, 0.04, 2.5f, 4, cv::ppf_match_3d::ICP::ICP_SAMPLING_TYPE_UNIFORM, 30);
+    icp = new cv::ppf_match_3d::ICP(200, 0.04, 2.5f, 4, cv::ppf_match_3d::ICP::ICP_SAMPLING_TYPE_UNIFORM, 60);
     //icp = new cv::ppf_match_3d::ICP(100);
 
     tools::depthImgToPointCloud(frontalFace, frontalFaceCloud, {true, true, true}, 0.1);
@@ -39,11 +39,9 @@ ICP::ICP(const cv::Mat &frontalFace)
     frontalFaceCloud_1_1.convertTo(pc, CV_64FC1);
     icpExternal_1_1 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 50, 5.0);
     //IcpPointToPoint icp;
-    /*
-    icpExternal->setMinDeltaParam(0.001);
-    icpExternal_0_9->setMinDeltaParam(0.001);
-    icpExternal_1_1->setMinDeltaParam(0.001);
-    */
+//    icpExternal->setMinDeltaParam(0.001);
+//    icpExternal_0_9->setMinDeltaParam(0.001);
+//    icpExternal_1_1->setMinDeltaParam(0.001);
 
     std::cout << "ICP: Modelo 3D criado." << std::endl;
 
@@ -90,13 +88,13 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
         imageCache.copyTo(imageCloud);
         teste = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));
 
-        if (imageCache.cols == 6) {
+        /*if (imageCache.cols == 6) {
             tools::moveToCenter(imageCloud, {true, true}, {static_cast<float>(frontalFace.rows), static_cast<float>(frontalFace.cols)});
             cv::Mat newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC3, cv::Scalar(0));
             tools::pointCloudToRGBImg(imageCloud, newposeFm, {true, true, true});
             tools::saveImgProc(newposeFm, "-ROI-RGB", pos, 1);
             imageCache.copyTo(imageCloud);
-        }
+        }*/
 
         tools::moveToRigth(imageCloud);
         tools::pointCloudToDepthImg(imageCloud, teste, {true, true, true});
@@ -199,7 +197,7 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
     if (imageCache.cols == 6) {
         newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC3, cv::Scalar(0));
         tools::pointCloudToRGBImg(newpose, newposeFm, {true, true, true});
-        tools::saveImgProc(newposeFm, "-ROI-PoseCorrection-RGB", pos, 2);
+        tools::saveImgProc(newposeFm, "-ROI-PoseCorrection-RGB", pos, 2, true);
         //cv::imshow("rgb", newposeFm);
     }
 

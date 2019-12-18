@@ -44,6 +44,7 @@ IrLoader::IrLoader() {
                 _labels.push_back(uuid);
                 _flags.push_back(IR | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
             }
+            continue;
 
             if (voluntary["right"].isArray() && voluntary["right"].begin()->isObject()) {
                 //coleta primeira imagem frontal
