@@ -9,11 +9,47 @@ void tools::moveToRigth(cv::Mat &inout)
     {
         float minY = inout.at<float>(0);
         float minX = inout.at<float>(1);
+//        float maxY = inout.at<float>(0);
+//        float maxX = inout.at<float>(1);
+        {
+            for (int j = 0; j < inout.rows; j++) {
+                int i = static_cast< std::vector<uint16_t>::size_type >(j * inout.cols);
+                if (minY > inout.at<float>(i + 0))
+                    minY = inout.at<float>(i + 0);
+//                else if (maxY < inout.at<float>(i + 0))
+//                    maxY = inout.at<float>(i + 0);
+
+                if (minX > inout.at<float>(i + 1))
+                    minX = inout.at<float>(i + 1);
+//                else if (maxX < inout.at<float>(i + 1))
+//                    maxX = inout.at<float>(i + 1);
+            }
+        }
+        //        float diffY = (frontalFace.rows / 2 / REDUTOR) - ((maxY - minY) / 2) - minY;
+        //        float diffX = (frontalFace.cols / 2 / REDUTOR) - ((maxX - minX) / 2) - minX;
+        float diffY = - minY;
+        float diffX = - minX;
+
+        for (int j = 0; j < inout.rows; j++) {
+            int i = static_cast< std::vector<uint16_t>::size_type >(j * inout.cols);
+
+            inout.at<float>(i + 0) += diffY;
+            inout.at<float>(i + 1) += diffX;
+        }
+    }
+}
+
+void tools::moveToCenter(cv::Mat &inout, const cv::Vec<bool,2> &scaled, const cv::Vec2f &tvec)
+{
+    //if (inout.channels() == 3)
+    {
+        float minY = inout.at<float>(0);
+        float minX = inout.at<float>(1);
         float maxY = inout.at<float>(0);
         float maxX = inout.at<float>(1);
         {
             for (int j = 0; j < inout.rows; j++) {
-                int i = static_cast< std::vector<uint16_t>::size_type >(j * 3);
+                int i = static_cast< std::vector<uint16_t>::size_type >(j * inout.cols);
                 if (minY > inout.at<float>(i + 0))
                     minY = inout.at<float>(i + 0);
                 else if (maxY < inout.at<float>(i + 0))
@@ -31,29 +67,38 @@ void tools::moveToRigth(cv::Mat &inout)
         float diffX = - minX;
 
         for (int j = 0; j < inout.rows; j++) {
-            int i = static_cast< std::vector<uint16_t>::size_type >(j * 3);
+            int i = static_cast< std::vector<uint16_t>::size_type >(j * inout.cols);
 
-            inout.at<float>(i + 0) += diffY;
-            inout.at<float>(i + 1) += diffX;
+            inout.at<float>(i + 0) += diffY + (scaled[0] ? (tvec[0] / 2 * tools::SCALE_XY) : tvec[0]) - ((maxY - minY) / 2);
+            inout.at<float>(i + 1) += diffX + (scaled[1] ? (tvec[1] / 2 * tools::SCALE_XY) : tvec[1]) - ((maxX - minX) / 2);
         }
     }
 }
 
 //void tools::depthImgToPointCloud(const cv::Mat &depth, cv::Mat &pc, cv::Vec<bool, 3> scale, float greatthen, const cv::Vec3f &tvec)
-void tools::depthImgToPointCloud(const cv::Mat &depth, cv::Mat &pc, const cv::Vec<bool,3> &scale, float greatthen, const cv::Vec3f &tvec)
+void tools::depthImgToPointCloud(const cv::Mat &depth, const cv::Mat &color, cv::Mat &pc, const cv::Vec<bool,3> &scale, float greatthen, const cv::Vec3f &tvec)
 {
+    if (color.channels() == 3) {
+        assert(depth.rows == color.rows);
+        assert(depth.cols == color.cols);
+    }
+
     int points = 0;
     {//Total de pontos da malha de rosto
         for (int y = 0; y < depth.rows; y++) {
             for (int x = 0; x < depth.cols; x++) {
-                if (depth.at<float>(y, x) < 0.1 /*|| imageCache.at<float>(y, x) > 0.99990*/)
+                if (depth.at<float>(y, x) < greatthen /*|| imageCache.at<float>(y, x) > 0.99990*/)
                     continue;
                 points ++;
             }
         }
     }
 
-    pc = cv::Mat(points, 3, CV_32FC1, cv::Scalar(0));
+    if (color.channels() == 3)
+        pc = cv::Mat(points, 6, CV_32FC1, cv::Scalar(0));
+    else
+        pc = cv::Mat(points, 3, CV_32FC1, cv::Scalar(0));
+
     {//Cria image3D do rosto a partir da imagem de profundidade
         points = 0;
         std::vector<uint16_t>::size_type i;
@@ -67,6 +112,14 @@ void tools::depthImgToPointCloud(const cv::Mat &depth, cv::Mat &pc, const cv::Ve
                 pc.at<float>(points, 0) = y + tvec[1];
                 pc.at<float>(points, 1) = x + tvec[0];
                 pc.at<float>(points, 2) = depth.at<float>(y, x) + tvec[2];
+
+                if (color.channels() == 3) {
+                    int i = static_cast< std::vector<uint16_t>::size_type >(y * 3) + x;
+
+                    pc.at<float>(points, 3) = color.at<cv::Point3f>(y, x).x;
+                    pc.at<float>(points, 4) = color.at<cv::Point3f>(y, x).y;
+                    pc.at<float>(points, 5) = color.at<cv::Point3f>(y, x).z;
+                }
 
                 if (scale[1])
                     pc.at<float>(points, 1) *= tools::SCALE_XY;
@@ -84,7 +137,7 @@ void tools::depthImgToPointCloud(const cv::Mat &depth, cv::Mat &pc, const cv::Ve
 void tools::pointCloudToDepthImg(const cv::Mat &pc, cv::Mat &depth, const cv::Vec<bool,3> &scale, const cv::Vec3f &tvec)
 {
     for (int j = 0; j < pc.rows; j++) {
-        int i = static_cast< std::vector<uint16_t>::size_type >(j * 3);
+        int i = static_cast< std::vector<uint16_t>::size_type >(j * pc.cols);
 
         float x = pc.at<float>(i + 1)+ tvec[0];
         float y = pc.at<float>(i + 0)+ tvec[1];
@@ -97,6 +150,28 @@ void tools::pointCloudToDepthImg(const cv::Mat &pc, cv::Mat &depth, const cv::Ve
             depth.at<float>((int)y, (int)x) = pc.at<float>(i + 2) + tvec[2];
             if (scale[2])
                 depth.at<float>((int)y, (int)x) /= SCALE_Z;
+        }
+    }
+}
+
+void tools::pointCloudToRGBImg(const cv::Mat &pc, cv::Mat &rgb, const cv::Vec<bool,2> &scale, const cv::Vec3f &tvec)
+{
+    assert(pc.cols == 6);
+
+    for (int j = 0; j < pc.rows; j++) {
+        int i = static_cast< std::vector<uint16_t>::size_type >(j * pc.cols);
+
+        float x = pc.at<float>(i + 1)+ tvec[0];
+        float y = pc.at<float>(i + 0)+ tvec[1];
+        if (scale[0])
+            x /= tools::SCALE_XY;
+        if (scale[1])
+            y /= tools::SCALE_XY;
+
+        if (y < rgb.rows && x < rgb.cols && x  && x > 0 && y > 0) {
+            rgb.at<cv::Point3f>((int)y, (int)x).x = pc.at<float>(i + 3);
+            rgb.at<cv::Point3f>((int)y, (int)x).y = pc.at<float>(i + 4);
+            rgb.at<cv::Point3f>((int)y, (int)x).z = pc.at<float>(i + 5);
         }
     }
 }
@@ -151,14 +226,14 @@ cv::Matx44d tools::rotationMatrixTo44d(cv::Mat r)
 
 void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos)
 {
-    return;
+//    return;
     cv::Mat rgb;
     if (img.channels() == 1)
         cv::cvtColor(img, rgb, cv::COLOR_GRAY2RGB);
     else
         rgb = img.clone();
 
-    if (img.type() == CV_32FC1) {
+    if (img.type() == CV_32FC1 || img.type() == CV_32FC3) {
         cv::Mat tmp;
         rgb.convertTo(tmp, CV_8UC3, 255);
         rgb = tmp;
@@ -181,4 +256,34 @@ void tools::appendCsv(std::string filename, std::vector<std::string> cols)
     for(std::string col: cols)
         outfile << col << ";";
     outfile << std::endl;
+}
+
+cv::Mat tools::transformPCPose(cv::Mat pc, const cv::Matx44d &Pose)
+{
+    cv::Mat pct = cv::Mat(pc.rows, pc.cols, CV_32F, cv::Scalar(0));
+
+    cv::Matx33d R;
+    cv::Vec3d t;
+
+    cv::Mat(Pose).rowRange(0, 3).colRange(0, 3).copyTo(R);
+    cv::Mat(Pose).rowRange(0, 3).colRange(3, 4).copyTo(t);
+
+    for (int i=0; i<pc.rows; i++)
+    {
+      const float *pcData = pc.ptr<float>(i);
+      const cv::Vec3f n1(&pcData[3]);
+
+      cv::Vec4d p = Pose * cv::Vec4d(pcData[0], pcData[1], pcData[2], 1);
+      cv::Vec3d p2(p.val);
+
+      // p2[3] should normally be 1
+//      if (fabs(p[3]) > cv::TermCriteria::EPS)
+      //if (fabs(p[3]) > 0)
+      {
+        cv::Mat((1.0 / p[3]) * p2).reshape(1, 1).convertTo(pct.row(i).colRange(0, 3), CV_32F);
+      }
+      if (pc.cols > 3)
+        pc.row(i).colRange(3,6).copyTo(pct.row(i).colRange(3, 6));
+    }
+    return pct;
 }

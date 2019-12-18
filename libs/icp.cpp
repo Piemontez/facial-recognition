@@ -39,6 +39,11 @@ ICP::ICP(const cv::Mat &frontalFace)
     frontalFaceCloud_1_1.convertTo(pc, CV_64FC1);
     icpExternal_1_1 = new IcpPointToPlane((double *)pc.data, pc.rows, 3, 50, 5.0);
     //IcpPointToPoint icp;
+    /*
+    icpExternal->setMinDeltaParam(0.001);
+    icpExternal_0_9->setMinDeltaParam(0.001);
+    icpExternal_1_1->setMinDeltaParam(0.001);
+    */
 
     std::cout << "ICP: Modelo 3D criado." << std::endl;
 
@@ -81,15 +86,25 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
     assert(this->frontalFace.type() == CV_32F);
     assert(imageCache.type() == CV_32F);
 
-    if (imageCache.cols == 3) {
+    if (imageCache.cols == 3 || imageCache.cols == 6) {
         imageCache.copyTo(imageCloud);
         teste = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));
 
+        if (imageCache.cols == 6) {
+            tools::moveToCenter(imageCloud, {true, true}, {static_cast<float>(frontalFace.rows), static_cast<float>(frontalFace.cols)});
+            cv::Mat newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC3, cv::Scalar(0));
+            tools::pointCloudToRGBImg(imageCloud, newposeFm, {true, true, true});
+            tools::saveImgProc(newposeFm, "-ROI-RGB", pos, 1);
+            imageCache.copyTo(imageCloud);
+        }
+
         tools::moveToRigth(imageCloud);
         tools::pointCloudToDepthImg(imageCloud, teste, {true, true, true});
+        if (imageCache.cols == 6)
+            tools::depthImgToPointCloud(teste, imageCloud, {true, true, true}, 0.001);
     } else {
         teste = imageCache;
-        tools::depthImgToPointCloud(imageCache, imageCloud, {true, true, true}, 0.1);
+        tools::depthImgToPointCloud(imageCache, imageCloud, {true, true, true}, 0.001);
     }
 
 //    cv::imshow("frontal", this->frontalFace);
@@ -177,15 +192,26 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
         */
     }
 
-    cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, bestPose);
     cv::Mat newposeFm;
-    if (imageCache.cols == 3) {
-         newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));
+    cv::Mat newpose = tools::transformPCPose(imageCache, bestPose);
+    tools::moveToCenter(newpose, {true, true}, {static_cast<float>(frontalFace.rows), static_cast<float>(frontalFace.cols)});
+
+    if (imageCache.cols == 6) {
+        newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC3, cv::Scalar(0));
+        tools::pointCloudToRGBImg(newpose, newposeFm, {true, true, true});
+        tools::saveImgProc(newposeFm, "-ROI-PoseCorrection-RGB", pos, 2);
+        //cv::imshow("rgb", newposeFm);
+    }
+
+    if (imageCache.cols == 3 || imageCache.cols == 6) {
+        newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));
     } else {
         newposeFm = cv::Mat(imageCache.rows, imageCache.cols, CV_32FC1, cv::Scalar(0));
     }
-    tools::moveToRigth(newpose);
+
     tools::pointCloudToDepthImg(newpose, newposeFm, {true, true, true});
+    /*cv::imshow("depth", newposeFm);
+    cv::waitKey(500);*/
 
     return newposeFm;
 }

@@ -189,7 +189,6 @@ void Tester::run()
         }
         std::cout << "    Permutação:" << processorName << std::endl;
 
-        //cv::imwrite();
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
             for (auto && tp: this->d_ptr->images) {

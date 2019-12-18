@@ -6,6 +6,7 @@
 #include <opencv4/opencv2/face.hpp>
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/surface_matching/ppf_helpers.hpp>
+#include <opencv4/opencv2/surface_matching/pose_3d.hpp>
 
 //https://levelup.gitconnected.com/facial-landmark-detection-in-opencv4-616f9c1737a5
 
@@ -56,7 +57,7 @@ cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 //            cv::imshow("roi", roi);
 //            cv::waitKey();
 
-            this->rotateImage(roi.clone(), roi, rvec, tvec);
+            this->rotateImage(roi.clone(), rgb, roi, rvec, tvec);
 
             /*
             cv::Mat rs = cv::Mat(image.rows, image.cols, image.type(), cv::Scalar(255,255,255));
@@ -127,10 +128,15 @@ void GanPan::estimatePoseDirection(const cv::Mat &image, const std::vector< std:
     */
 }
 
-void GanPan::rotateImage(const cv::Mat &input, cv::Mat &output, cv::Mat &rvec, cv::Mat &tvec)
+void GanPan::rotateImage(const cv::Mat &depth, const cv::Mat &color, cv::Mat &output, cv::Mat &rvec, cv::Mat &tvec)
 {
     cv::Mat imageCloud;
-    tools::depthImgToPointCloud(input, imageCloud, {true, true, true}, 0.1, {.0, .0, .0});
+    cv::Mat rgbF;
+    if (color.type() == CV_8UC3)
+        color.convertTo(rgbF, CV_32FC3, 1 / 255.0);
+    else
+        rgbF = color;
+    tools::depthImgToPointCloud(depth, rgbF, imageCloud, {true, true, true}, 0.1, {.0, .0, .0});
 
 //    for (float l = 0; l < 7; l += 0.01)
 //    {
@@ -145,11 +151,27 @@ void GanPan::rotateImage(const cv::Mat &input, cv::Mat &output, cv::Mat &rvec, c
         std::swap(rvec.at<double>(2,0), rvec.at<double>(0,0));
 
         cv::Matx44d pose = tools::rotationMatrixTo44d(r);
-        cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
+        //cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
+        cv::Mat newpose = tools::transformPCPose(imageCloud, pose);
 
-        output = cv::Mat(input.rows, input.cols, CV_32FC1, cv::Scalar(0));
+        output = cv::Mat(newpose.rows, newpose.cols, newpose.type(), cv::Scalar(0));
+        /*
         tools::moveToRigth(newpose);
+
+        output = cv::Mat(depth.rows, depth.cols, CV_32FC1, cv::Scalar(0));
         tools::pointCloudToDepthImg(newpose, output, {true, true, true});
+        cv::imshow("output", output);
+
+        output = cv::Mat(depth.rows, depth.cols, CV_32FC3, cv::Scalar(0));
+        tools::pointCloudToRGBImg(newpose, output, {true, true});
+        cv::imshow("rgb", output);
+        cv::waitKey();
+
+        {
+            tools::pointCloudToDepthImg(newpose, output, {true, true, true});
+            tools::depthImgToPointCloud(output, newpose, {true, true, true}, 0.1, {.0, .0, .0});
+        }
+        */
 
     //        if (i == 0)
     //        {
@@ -175,12 +197,10 @@ void GanPan::rotateImage(const cv::Mat &input, cv::Mat &output, cv::Mat &rvec, c
 
         //cv::imshow("imageCloud", imageCloud);
 
-//        cv::imshow("image", input);
-//        cv::imshow("newpose", output);
 //        cv::moveWindow("image",600,0);
 //        cv::moveWindow("newpose",0,200);
 //        cv::waitKey();
 //    }
 //    cv::waitKey();
-        newpose.copyTo(output);
+    newpose.copyTo(output);
 }

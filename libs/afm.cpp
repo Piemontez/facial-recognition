@@ -45,7 +45,7 @@ AFM::AFM(ImageLoader *loader)
         std::vector<cv::Mat>::iterator imgIt = imgsTrain.begin();
         while(imgIt != imgsTrain.end())
         {
-            tools::saveImgProc(*imgIt, "-AFM", pos++, 0);
+            //tools::saveImgProc(*imgIt, "-AFM", pos++, 0);
 
             (*imgIt).convertTo(temp, CV_64FC1);
 
@@ -75,8 +75,8 @@ AFM::AFM(ImageLoader *loader)
     //cv::moveWindow("afm",800,0);
     //cv::waitKey();
 
-    tools::saveImgProc(afm, "-AFM", 0, 0);
-    Viewer3D::view(afm);
+    //tools::saveImgProc(afm, "-AFM", 0, 0);
+    //Viewer3D::view(afm);
 
     delete roi;
 }
