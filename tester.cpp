@@ -189,20 +189,32 @@ void Tester::run()
         }
         std::cout << "    Permutação:" << processorName << std::endl;
 
+        cv::Mat load;
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
             for (auto && tp: this->d_ptr->images) {
                 auto img = tp.image;
-                tools::saveImgProc(img, "-Original-" + this->name(), pos, 0, false);
+
+                load = tools::loadImgProc("-Original-" + this->name(), pos, 0);
+                if (load.empty())
+                    tools::saveImgProc(img, "-Original-" + this->name(), pos, 0, false);
 
                 int permPos = 1;
                 std::string name;
                 for (auto && pre: perms) {
-                    img = pre->proccess(img.clone(), pos, imageLoader());
                     name += "-" + pre->name();
 
-                    //cv::imshow(name, img); cv::waitKey(2000);
-                    tools::saveImgProc(img, name + "-" + this->name(), pos, permPos++);
+                    load = tools::loadImgProc(name + "-" + this->name(), pos, permPos);
+
+                    if (load.empty()) {
+                        img = pre->proccess(img.clone(), pos, imageLoader());
+                        //cv::imshow(name, img); cv::waitKey(2000);
+                        tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
+                    }
+                    else
+                        img = load;
+
+                    permPos++;
                 }
 
                 if (img.channels() > 1) {

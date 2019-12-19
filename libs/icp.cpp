@@ -194,12 +194,12 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
     cv::Mat newpose = tools::transformPCPose(imageCache, bestPose);
     tools::moveToCenter(newpose, {true, true}, {static_cast<float>(frontalFace.rows), static_cast<float>(frontalFace.cols)});
 
-    if (imageCache.cols == 6) {
+    /*if (imageCache.cols == 6) {
         newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC3, cv::Scalar(0));
         tools::pointCloudToRGBImg(newpose, newposeFm, {true, true, true});
         tools::saveImgProc(newposeFm, "-ROI-PoseCorrection-RGB", pos, 2, true);
         //cv::imshow("rgb", newposeFm);
-    }
+    }*/
 
     if (imageCache.cols == 3 || imageCache.cols == 6) {
         newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));

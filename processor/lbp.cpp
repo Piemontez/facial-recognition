@@ -1,4 +1,5 @@
 #include "lbp.hpp"
+#include "../imageloader.hpp"
 
 #include "opencv4/opencv2/opencv.hpp"
 
@@ -23,8 +24,10 @@ cv::Mat LBP::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
     cv::Mat planes[out.channels()];
     cv::split(out, planes);
 
-//    OLBP_<unsigned char>(planes[2], out);
-//    return out;
+    if (imgLoader->flags().front() & IR) {
+        OLBP_<unsigned char>(planes[2], out);
+        return out;
+    }
 
     for (int x = 0; x < out.channels(); x++)
     {

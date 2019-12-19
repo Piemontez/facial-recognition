@@ -44,11 +44,10 @@ VisLoader::VisLoader() {
                 _labels.push_back(uuid);
                 _flags.push_back(RBG | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
             }
-            continue;
 
             if (voluntary["right"].isArray() && voluntary["right"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["front"].begin();
+                Json::Value front = *voluntary["right"].begin();
                 //endereço imagem frontal
                 std::string dethPath = front["rgb_with_bg"].asString();
 
@@ -59,7 +58,7 @@ VisLoader::VisLoader() {
 
             if (voluntary["left"].isArray() && voluntary["left"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["front"].begin();
+                Json::Value front = *voluntary["left"].begin();
                 //endereço imagem frontal
                 std::string dethPath = front["rgb_with_bg"].asString();
 
@@ -70,7 +69,7 @@ VisLoader::VisLoader() {
 
             if (voluntary["up"].isArray() && voluntary["up"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["front"].begin();
+                Json::Value front = *voluntary["up"].begin();
                 //endereço imagem frontal
                 std::string dethPath = front["rgb_with_bg"].asString();
 
@@ -81,7 +80,7 @@ VisLoader::VisLoader() {
 
             if (voluntary["down"].isArray() && voluntary["down"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["front"].begin();
+                Json::Value front = *voluntary["down"].begin();
                 //endereço imagem frontal
                 std::string dethPath = front["rgb_with_bg"].asString();
 
@@ -92,7 +91,7 @@ VisLoader::VisLoader() {
 
             if (voluntary["burned"].isArray() && voluntary["burned"].begin()->isObject()) {
                 //coleta primeira imagem frontal
-                Json::Value front = *voluntary["front"].begin();
+                Json::Value front = *voluntary["burned"].begin();
                 //endereço imagem frontal
                 std::string dethPath = front["rgb_with_bg"].asString();
 

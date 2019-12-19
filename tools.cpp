@@ -224,9 +224,14 @@ cv::Matx44d tools::rotationMatrixTo44d(cv::Mat r)
                      0, 0, 0, 1);
 }
 
+cv::Mat tools::loadImgProc(std::string permutation, int imgId, int permPos)
+{
+    std::string path = "../tmp/byimg_" + std::to_string(imgId) + "-" + std::to_string(permPos) + permutation + ".jpg";
+    return cv::imread(path);
+}
+
 void tools::saveImgProc(cv::Mat img, std::string permutation, int imgId, int permPos, bool blackToWhite)
 {
-//    return;
     cv::Mat rgb;
     if (img.channels() == 1)
         cv::cvtColor(img, rgb, cv::COLOR_GRAY2RGB);
