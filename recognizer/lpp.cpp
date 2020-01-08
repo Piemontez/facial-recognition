@@ -35,6 +35,9 @@ int LPP::predict(const cv::Mat &image)
 
 int LPP::compare(const cv::Mat &source, const cv::Mat &targe)
 {
+    cv::Mat out;
+    cv::hconcat(source, targe, out);
+
     return false;
 }
 

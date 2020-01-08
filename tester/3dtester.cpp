@@ -14,7 +14,7 @@ ThreeDTester::ThreeDTester() {
     setImageLoader(imgLoader);
 
     addPreProcessorOrderFixed(new ROI());
-    //addPreProcessorOrderFixed(new PoseCorrection(imgLoader));
+    addPreProcessorOrderFixed(new PoseCorrection(imgLoader));
 
     addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);

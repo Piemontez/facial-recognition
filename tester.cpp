@@ -201,6 +201,7 @@ void Tester::run()
 
                 int permPos = 1;
                 std::string name;
+                int timeTrainig = cv::getTickCount();
                 for (auto && pre: perms) {
                     name += "-" + pre->name();
 
@@ -216,6 +217,8 @@ void Tester::run()
 
                     permPos++;
                 }
+                timeTrainig = cv::getTickCount() - timeTrainig;
+                this->saveTest("processor", "", processorName, timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
 
                 if (img.channels() > 1) {
                     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
@@ -342,6 +345,8 @@ void Tester::run()
                 this->saveTest("recog", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
 
                 std::cout << "    Realizando teste de comparacao:" << testPos << std::endl;
+                timeTrainig = 0;
+                timeRecog = 0;
                 VP = 0, FP = 0, FN = 0, VN = 0;
 
                 recog->resetTrain();

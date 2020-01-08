@@ -35,7 +35,10 @@ int LDA::predict(const cv::Mat &image)
 
 int LDA::compare(const cv::Mat &source, const cv::Mat &targe)
 {
-    return false;
+    cv::Mat out;
+    cv::hconcat(source, targe, out);
+
+    return model->predict(out);
 }
 
 void LDA::save(const std::string &filePath)

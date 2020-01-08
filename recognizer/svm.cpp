@@ -58,7 +58,10 @@ int SVMOpenCV::predict(const cv::Mat &image)
 
 int SVMOpenCV::compare(const cv::Mat &source, const cv::Mat &targe)
 {
-    return false;
+    cv::Mat out;
+    cv::hconcat(source, targe, out);
+
+    return model->predict(out);
 }
 
 void SVMOpenCV::save(const std::string &filePath)
