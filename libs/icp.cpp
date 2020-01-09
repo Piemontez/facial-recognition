@@ -82,7 +82,7 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
     cv::Mat teste;
 
     assert(this->frontalFace.type() == CV_32F);
-    assert(imageCache.type() == CV_32F);
+    //assert(imageCache.type() == CV_32F);
 
     if (imageCache.cols == 3 || imageCache.cols == 6) {
         imageCache.copyTo(imageCloud);

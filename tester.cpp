@@ -201,14 +201,18 @@ void Tester::run()
 
                 int permPos = 1;
                 std::string name;
-                int timeTrainig = cv::getTickCount();
+                int64_t timeTrainig;
                 for (auto && pre: perms) {
                     name += "-" + pre->name();
 
                     load = tools::loadImgProc(name + "-" + this->name(), pos, permPos);
 
                     if (load.empty()) {
+                        timeTrainig = cv::getTickCount();
                         img = pre->proccess(img.clone(), pos, imageLoader());
+                        timeTrainig = cv::getTickCount() - timeTrainig;
+                        this->saveTest("processor", this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
+
                         //cv::imshow(name, img); cv::waitKey(2000);
                         tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
                     }
@@ -217,8 +221,6 @@ void Tester::run()
 
                     permPos++;
                 }
-                timeTrainig = cv::getTickCount() - timeTrainig;
-                this->saveTest("processor", "", processorName, timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
 
                 if (img.channels() > 1) {
                     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
