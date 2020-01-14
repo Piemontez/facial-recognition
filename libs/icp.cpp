@@ -100,10 +100,14 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
         tools::pointCloudToDepthImg(imageCloud, teste, {true, true, true});
         if (imageCache.cols == 6)
             tools::depthImgToPointCloud(teste, imageCloud, {true, true, true}, 0.001);
+//        cv::imshow("frontala", imageCache);
     } else {
+//        cv::imshow("frontalb", imageCache);
         teste = imageCache;
         tools::depthImgToPointCloud(imageCache, imageCloud, {true, true, true}, 0.001);
     }
+
+//    cv::waitKey();
 
 //    cv::imshow("frontal", this->frontalFace);
 //    cv::moveWindow("frontal",0,0);
@@ -134,7 +138,7 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
             lastResidual = cv::abs(residual);
         }
 
-        cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
+        //cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
         //std::cout << "residual:"  << residual << std::endl;
         //std::printf("residual: %f\n", residual);
 
@@ -156,60 +160,69 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
     Matrix t(3,1);
     double residual = 0;
 
-    if (!BY_OPENCV_ICP)
-    for (int l =0; l < 3; l++) {
+    try {
+        if (!BY_OPENCV_ICP)
+        for (int l =0; l < 3; l++) {
 
-        imageCloud.convertTo(teste, CV_64FC1);
-        switch (l) {
-        case 0: residual = icpExternal->fit((double *)teste.data, teste.rows, R, t, -1); break;
-        case 1: residual = icpExternal_0_9->fit((double *)teste.data, teste.rows, R, t, -1); break;
-        case 2: residual = icpExternal_1_1->fit((double *)teste.data, teste.rows, R, t, -1); break;
+            imageCloud.convertTo(teste, CV_64FC1);
+            switch (l) {
+            case 0: residual = icpExternal->fit((double *)teste.data, teste.rows, R, t, -1); break;
+            case 1: residual = icpExternal_0_9->fit((double *)teste.data, teste.rows, R, t, -1); break;
+            case 2: residual = icpExternal_1_1->fit((double *)teste.data, teste.rows, R, t, -1); break;
+            }
+
+            std::printf("ext. residual: %f\n", residual);
+
+            cv::Matx44d pose = tools::rotationMatrixTo44d((cv::Mat_<double>(3, 3) <<
+                R.val[0][0], R.val[0][1], R.val[0][2],
+                R.val[1][0], R.val[1][1], R.val[1][2],
+                R.val[2][0], R.val[2][1], R.val[2][2]
+            ));
+
+            if (residual > 0 && (cv::abs(residual) < lastResidual || 0 == lastResidual)) {
+                bestPose = pose;
+                lastResidual = cv::abs(residual);
+            }
+
+            /*
+            cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
+
+            cv::Mat newposeFm = cv::Mat(frontalFace.rows*2, frontalFace.cols*3, CV_32FC1, cv::Scalar(0));
+            tools::pointCloudToDepthImg(newpose, newposeFm, {true, true, true}, {1.5, 1.5, 0.0});
+
+            cv::imshow("external" + l, newposeFm);
+            cv::moveWindow("external" + l,  220 + (l%5 * 180), 150 + (l < 5 ? 0 : 200));
+            */
         }
-
-        std::printf("ext. residual: %f\n", residual);
-
-        cv::Matx44d pose = tools::rotationMatrixTo44d((cv::Mat_<double>(3, 3) <<
-            R.val[0][0], R.val[0][1], R.val[0][2],
-            R.val[1][0], R.val[1][1], R.val[1][2],
-            R.val[2][0], R.val[2][1], R.val[2][2]
-        ));
-
-        if (residual > 0 && (cv::abs(residual) < lastResidual || 0 == lastResidual)) {
-            bestPose = pose;
-            lastResidual = cv::abs(residual);
-        }
-
-        /*
-        cv::Mat newpose = cv::ppf_match_3d::transformPCPose(imageCloud, pose);
-
-        cv::Mat newposeFm = cv::Mat(frontalFace.rows*2, frontalFace.cols*3, CV_32FC1, cv::Scalar(0));
-        tools::pointCloudToDepthImg(newpose, newposeFm, {true, true, true}, {1.5, 1.5, 0.0});
-
-        cv::imshow("external" + l, newposeFm);
-        cv::moveWindow("external" + l,  220 + (l%5 * 180), 150 + (l < 5 ? 0 : 200));
-        */
-    }
+    } catch (...) {}
 
     cv::Mat newposeFm;
-    cv::Mat newpose = tools::transformPCPose(imageCache, bestPose);
-    tools::moveToCenter(newpose, {true, true}, {static_cast<float>(frontalFace.rows), static_cast<float>(frontalFace.cols)});
-
-    /*if (imageCache.cols == 6) {
-        newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC3, cv::Scalar(0));
-        tools::pointCloudToRGBImg(newpose, newposeFm, {true, true, true});
-        tools::saveImgProc(newposeFm, "-ROI-PoseCorrection-RGB", pos, 2, true);
-        //cv::imshow("rgb", newposeFm);
-    }*/
-
-    if (imageCache.cols == 3 || imageCache.cols == 6) {
-        newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));
+    if (residual == 0) {
+        tools::pointCloudToDepthImg(imageCloud, newposeFm, {true, true, true});
+        cv::imshow("cache", imageCache);
+        cv::imshow("depth", newposeFm);
+        cv::waitKey();
     } else {
-        newposeFm = cv::Mat(imageCache.rows, imageCache.cols, CV_32FC1, cv::Scalar(0));
-    }
+        cv::Mat newpose = tools::transformPCPose(imageCloud, bestPose);
+        tools::moveToCenter(newpose, {true, true}, {static_cast<float>(frontalFace.rows), static_cast<float>(frontalFace.cols)});
 
-    tools::pointCloudToDepthImg(newpose, newposeFm, {true, true, true});
-    /*cv::imshow("depth", newposeFm);
-    cv::waitKey(500);*/
+        /*if (imageCache.cols == 6) {
+            newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC3, cv::Scalar(0));
+            tools::pointCloudToRGBImg(newpose, newposeFm, {true, true, true});
+            tools::saveImgProc(newposeFm, "-ROI-PoseCorrection-RGB", pos, 2, true);
+            //cv::imshow("rgb", newposeFm);
+        }*/
+
+        if (imageCache.cols == 3 || imageCache.cols == 6) {
+            newposeFm = cv::Mat(frontalFace.rows, frontalFace.cols, CV_32FC1, cv::Scalar(0));
+        } else {
+            newposeFm = cv::Mat(imageCache.rows, imageCache.cols, CV_32FC1, cv::Scalar(0));
+        }
+
+        tools::pointCloudToDepthImg(newpose, newposeFm, {true, true, true});
+        /*cv::imshow("depth", newposeFm);
+        cv::waitKey(500);*/
+    }
 
     return newposeFm;
 }

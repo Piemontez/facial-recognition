@@ -227,6 +227,8 @@ cv::Matx44d tools::rotationMatrixTo44d(cv::Mat r)
 cv::Mat tools::loadImgProc(std::string permutation, int imgId, int permPos)
 {
     std::string path = "../tmp/byimg_" + std::to_string(imgId) + "-" + std::to_string(permPos) + permutation + ".jpg";
+    std::cout << "load" << path << std::endl;
+
     return cv::imread(path);
 }
 

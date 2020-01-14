@@ -183,7 +183,6 @@ void Tester::run()
         std::vector<int> _recogTrainLabels, _recogTestLabels,
                         _compareTrainLabels, _compareTestLabels;
 
-
         for (auto && pre: perms) {
             processorName.append(" ").append(pre->name());
         }
@@ -193,34 +192,38 @@ void Tester::run()
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
             for (auto && tp: this->d_ptr->images) {
+//                if (pos == 381 || pos == 280)
+//                    continue;
+
                 auto img = tp.image;
 
                 load = tools::loadImgProc("-Original-" + this->name(), pos, 0);
                 if (load.empty())
                     tools::saveImgProc(img, "-Original-" + this->name(), pos, 0, false);
 
-                int permPos = 1;
                 std::string name;
-                int64_t timeTrainig;
-                for (auto && pre: perms) {
+                for (auto && pre: perms)
                     name += "-" + pre->name();
+                load = tools::loadImgProc(name + "-" + this->name(), pos, perms.size());
 
-                    load = tools::loadImgProc(name + "-" + this->name(), pos, permPos);
+                if (load.empty()) {
+                    int64_t timeTrainig;
+                    int permPos = 0;
+                    for (auto && pre: perms) {
+                        permPos++;
 
-                    if (load.empty()) {
                         timeTrainig = cv::getTickCount();
                         img = pre->proccess(img.clone(), pos, imageLoader());
                         timeTrainig = cv::getTickCount() - timeTrainig;
                         this->saveTest("processor", this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
 
-                        //cv::imshow(name, img); cv::waitKey(2000);
-                        tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
-                    }
-                    else
-                        img = load;
+                        //tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
 
-                    permPos++;
-                }
+                    }
+                    //cv::imshow(name, img); cv::waitKey(150);
+                    tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
+                } else
+                    img = load;
 
                 if (img.channels() > 1) {
                     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
@@ -231,7 +234,6 @@ void Tester::run()
                 pos++;
             }
         }
-        continue;
 
         //Todo: remover para inicar treinamento
 
@@ -263,16 +265,16 @@ void Tester::run()
                     for (auto labelTest: labelsTest) {/*labels do grupo*/
                         for (auto tp: this->d_ptr->images) {
                             if (labelTest == tp.label) {
-                                if (tp.flags & COMPARE_MAIN_TRAIN) {
-                                    compareTrain = tp.processed;
-                                }
-
-                                if (groupPos == testPos) {
+                                if (groupPos == testPos || tp.flags & RECOG_TEST) {
                                     _recogTestImgs.push_back(tp.processed);
                                     _recogTestLabels.push_back(tp.label);
-                                } else {
-                                    _recogTrainImgs.push_back(tp.processed);
+                                } else if (tp.flags & RECOG_TRAIN) {
+                                        _recogTrainImgs.push_back(tp.processed);
                                     _recogTrainLabels.push_back(tp.label);
+                                }
+
+                                if (tp.flags & COMPARE_MAIN_TRAIN) {
+                                    compareTrain = tp.processed;
                                 }
 
                                 if (lastLabel == tp.label) {

@@ -12,10 +12,9 @@ VisTester::VisTester() {
     setImageLoader(new VisLoader);
 
     addPreProcessorOrderFixed(new ROI());
-
-    addPreProcessor(new GaussianBlur);
-    addPreProcessor(new LBP);
-    addPreProcessor(new DCT);
+    //addPreProcessor(new GaussianBlur);
+    //addPreProcessor(new LBP);
+    //addPreProcessor(new DCT);
 }
 
 std::string VisTester::name()

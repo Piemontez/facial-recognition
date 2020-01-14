@@ -27,11 +27,13 @@ VisLoader::VisLoader() {
     if (!root["_faces"].empty()) {
         Json::Value facesUUIDs = root["_faces"]; //Lista com população
 
+        int labelId = -1;
         for (auto && i = facesUUIDs.begin(); i != facesUUIDs.end(); i++)
         {
+            labelId++;
             std::string uuid = (*i).asString();
-
             Json::Value voluntary = root[uuid];
+
             if (voluntary.empty()) continue;
 
             if (voluntary["front"].isArray() && voluntary["front"].begin()->isObject()) {
@@ -41,7 +43,7 @@ VisLoader::VisLoader() {
                 std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(RBG | FRONTAL | RECOG_TRAIN | COMPARE_MAIN_TRAIN | COMPARE_TEST);
             }
 
@@ -52,7 +54,7 @@ VisLoader::VisLoader() {
                 std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(RBG | RITH | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -63,7 +65,7 @@ VisLoader::VisLoader() {
                 std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(RBG | LEFT | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -74,7 +76,7 @@ VisLoader::VisLoader() {
                 std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(RBG | TOP | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -85,7 +87,7 @@ VisLoader::VisLoader() {
                 std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(RBG | DOWN | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
 
@@ -96,7 +98,7 @@ VisLoader::VisLoader() {
                 std::string dethPath = front["rgb_with_bg"].asString();
 
                 _files.push_back(rap3dfFolder + dethPath);
-                _labels.push_back(uuid);
+                _labels.push_back(labelId);
                 _flags.push_back(RBG | RANDOM | RECOG_TEST | COMPARE_TRAIN | COMPARE_TEST);
             }
         }
@@ -119,10 +121,9 @@ std::vector<int> VisLoader::labels()
 {
     std::vector<int> labels;
 
-    int pos = 0;
     for (auto && label: _labels)
     {
-        labels.push_back( pos++ );
+        labels.push_back( label );
     }
 
     return labels;
