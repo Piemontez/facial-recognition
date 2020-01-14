@@ -19,7 +19,7 @@ void LDA::train(const std::vector<cv::Mat> &train, const std::vector<int> &train
 
 void LDA::resetTrain()
 {
-
+    model->clear();
 }
 
 void LDA::predict(const cv::Mat &image, int &label, int &confidence)

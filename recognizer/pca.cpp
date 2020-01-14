@@ -5,7 +5,6 @@
 PCA::PCA()
 {
     model = cv::face::EigenFaceRecognizer::create();
-    //model = cv::face::createFacemarkAAM();
 }
 
 std::string PCA::algorithmName()
@@ -20,7 +19,7 @@ void PCA::train(const std::vector<cv::Mat> &train, const std::vector<int> &train
 
 void PCA::resetTrain()
 {
-
+    model->clear();
 }
 
 void PCA::predict(const cv::Mat &image, int &label, int &confidence)

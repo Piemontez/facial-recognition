@@ -9,6 +9,9 @@
 #include <map>
 #include <opencv4/opencv2/opencv.hpp>
 
+#define COMPARE_EQ 1
+#define COMPARE_NEQ 2
+
 struct Image {
     cv::Mat image;
     int label;
@@ -37,9 +40,6 @@ struct TesterPrivate {
     int leaveOneOutGroupSize{5};
 
     std::vector< Image > images;
-    //std::vector<cv::Mat> images;
-    //std::vector<int> labels;
-    //std::vector<int> flags;
 
     std::vector<AlgorithmTest*> tester;
     std::vector<ImageProcessor *> imgsProcessorOrdered;
@@ -151,7 +151,7 @@ void Tester::run()
         return;
     }
 
-    std::cout << "  Total de imagens:" << images().size() << std::endl;
+    std::cout << "  Total de imagens:" << this->d_ptr->images.size() << std::endl;
     std::cout << "  Total de pre-processadores:" << preProcessors().size() << std::endl;
 
     std::vector<std::vector<ImageProcessor *>> _permutations = permutations(
@@ -245,7 +245,7 @@ void Tester::run()
             {
                 std::cout << "    Grupo teste: " << testPos << std::endl;
 
-                int groupPos = 0;
+                //int groupPos = 0;
                 int64_t timeTrainig = 0;
                 int64_t timeRecog = 0;
                 _recogTrainImgs.clear();
@@ -261,55 +261,61 @@ void Tester::run()
                 //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
                 cv::Mat compareTrain;
                 int lastLabel = -1;
-                for (auto labelsTest: testGroups) {/*grupos de testes*/
-                    for (auto labelTest: labelsTest) {/*labels do grupo*/
-                        for (auto tp: this->d_ptr->images) {
-                            if (labelTest == tp.label) {
-                                if (groupPos == testPos || tp.flags & RECOG_TEST) {
-                                    _recogTestImgs.push_back(tp.processed);
-                                    _recogTestLabels.push_back(tp.label);
-                                } else if (tp.flags & RECOG_TRAIN) {
-                                        _recogTrainImgs.push_back(tp.processed);
-                                    _recogTrainLabels.push_back(tp.label);
-                                }
+                for (auto tp: this->d_ptr->images) {
+                    bool test = false;
+                    int groupPos = 0;
+                    for (auto labelsTest: testGroups) {/*grupos de testes*/
+                        if (groupPos == testPos) {
+                            test = std::find(labelsTest.begin(), labelsTest.end(), tp.label) != labelsTest.end();
+                            if (test)
+                                break;
+                        }
+                        groupPos++;
+                    }
 
-                                if (tp.flags & COMPARE_MAIN_TRAIN) {
-                                    compareTrain = tp.processed;
-                                }
+                    if (test || tp.flags & RECOG_TEST) {
+                        //Selecionado para teste e imagens não frontais para teste
+                        _recogTestImgs.push_back(tp.processed);
+                        _recogTestLabels.push_back(tp.label);
+                    } else if (tp.flags & RECOG_TRAIN) {
+                        //Selecionado para treinamento
+                        _recogTrainImgs.push_back(tp.processed);
+                        _recogTrainLabels.push_back(tp.label);
+                    }
 
-                                if (lastLabel == tp.label) {
-                                    if ((tp.flags & COMPARE_TRAIN) && groupPos != testPos) {
-                                        _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
-                                        _compareTrainLabels.push_back(0);
-                                    }
-                                    if ((tp.flags & COMPARE_TEST) && groupPos == testPos) {
-                                        _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
-                                        _compareTestLabels.push_back(0);
-                                    }
-                                } else if (lastLabel > -1) {
-                                    if ((tp.flags & COMPARE_TRAIN) && groupPos != testPos) {
-                                        _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
-                                        _compareTrainLabels.push_back(1);
-                                    }
-                                    else if ((tp.flags & COMPARE_TEST) && groupPos == testPos) {
-                                        _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
-                                        _compareTestLabels.push_back(1);
-                                    }
-                                }
-                                lastLabel = tp.label;
-                            }
+                    if (tp.flags & COMPARE_MAIN_TRAIN) {
+                        compareTrain = tp.processed;
+                    }
+
+                    if (lastLabel == tp.label) {
+                        if ((tp.flags & COMPARE_TRAIN) && !test) {
+                            _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
+                            _compareTrainLabels.push_back(COMPARE_EQ);
+                        }
+                        if ((tp.flags & COMPARE_TEST) && test) {
+                            _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
+                            _compareTestLabels.push_back(COMPARE_EQ);
+                        }
+                    } else if (lastLabel > -1) {
+                        if ((tp.flags & (COMPARE_TRAIN | COMPARE_MAIN_TRAIN)) && !test) {
+                            _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
+                            _compareTrainLabels.push_back(COMPARE_NEQ);
+                        }
+                        else if ((tp.flags & COMPARE_TEST) && test) {
+                            _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
+                            _compareTestLabels.push_back(COMPARE_NEQ);
                         }
                     }
-                    groupPos++;
+                    lastLabel = tp.label;
                 }
 
-                std::cout << "    Realizando treinamento." << std::endl;
+                std::cout << "    Realizando treinamento de reconhecimento." << std::endl;
                 recog->resetTrain();
                 timeTrainig = cv::getTickCount();
                 recog->train(_recogTrainImgs, _recogTrainLabels);
                 timeTrainig = cv::getTickCount() - timeTrainig;
 
-                std::cout << "    Realizando teste de reconhecimento:" << testPos << std::endl;
+                std::cout << "    Realizando teste de reconhecimento:" << std::endl;
                 int VP = 0, FP = 0, FN = 0, VN = 0;
 
                 int posTest = 0;
@@ -343,12 +349,12 @@ void Tester::run()
 
                 //Contabiliza o teste
                 recogsNames.push_back(recog->algorithmName());
-                processorsNames.push_back(processorName);
+                processorsNames.push_back("Recog: " + processorName);
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
                 this->saveTest("recog", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
 
-                std::cout << "    Realizando teste de comparacao:" << testPos << std::endl;
+                std::cout << "    Realizando treinamento de comparacao:" << std::endl;
                 timeTrainig = 0;
                 timeRecog = 0;
                 VP = 0, FP = 0, FN = 0, VN = 0;
@@ -364,6 +370,8 @@ void Tester::run()
                 recog->train(images, _compareTrainLabels);
                 timeTrainig = cv::getTickCount() - timeTrainig;
 
+                std::cout << "    Realizando teste de comparacao:" << std::endl;
+
                 posTest = 0;
                 for (auto testImg: _compareTestImgs) {
                     int64_t time = cv::getTickCount();
@@ -377,6 +385,12 @@ void Tester::run()
                     posTest++;
                 }
                 timeRecog = timeRecog / _compareTestImgs.size();
+
+
+                //Contabiliza o teste
+                recogsNames.push_back(recog->algorithmName());
+                processorsNames.push_back("Compa: " + processorName);
+                resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
                 this->saveTest("compare", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
             }

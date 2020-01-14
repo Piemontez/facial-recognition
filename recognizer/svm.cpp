@@ -38,7 +38,7 @@ void SVMOpenCV::train(const std::vector<cv::Mat> &train, const std::vector<int> 
 
 void SVMOpenCV::resetTrain()
 {
-
+    model->clear();
 }
 
 void SVMOpenCV::predict(const cv::Mat &image, int &label, int &confidence)
@@ -56,12 +56,17 @@ int SVMOpenCV::predict(const cv::Mat &image)
     return model->predict(redims);
 }
 
-int SVMOpenCV::compare(const cv::Mat &source, const cv::Mat &targe)
+int SVMOpenCV::compare(const cv::Mat &source, const cv::Mat &target)
 {
-    cv::Mat out;
-    cv::hconcat(source, targe, out);
+    cv::Mat outputS,outputT,output;
 
-    return model->predict(out);
+    source.convertTo(outputS, CV_32F);
+    target.convertTo(outputT, CV_32F);
+    cv::hconcat(outputS, outputT, output);
+
+    cv::Mat redims(1, output.rows*output.cols, output.type(), output.data);
+
+    return model->predict(redims);
 }
 
 void SVMOpenCV::save(const std::string &filePath)
