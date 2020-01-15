@@ -259,8 +259,9 @@ void Tester::run()
 
                 std::cout << "    Separando imagens para trainamento." << std::endl;
                 //percorre os grupos de testes e adiciona na lista de trainamento ou na lista para testes
-                cv::Mat compareTrain;
-                int lastLabel = -1;
+                cv::Mat compareTrain, compareTrain2, compareTrain3, compareTrain4, compareTrain5, randomTrain;
+                int lastLabel = -1, randomLabel = -1;
+
                 for (auto tp: this->d_ptr->images) {
                     bool test = false;
                     int groupPos = 0;
@@ -284,7 +285,20 @@ void Tester::run()
                     }
 
                     if (tp.flags & COMPARE_MAIN_TRAIN) {
+                        compareTrain5 = compareTrain4;
+                        compareTrain4 = compareTrain3;
+                        compareTrain3 = compareTrain2;
+                        compareTrain2 = compareTrain;
                         compareTrain = tp.processed;
+                    }
+                    if ((rand() > rand()) && tp.flags & COMPARE_TRAIN) {
+                        randomTrain = tp.processed;
+                        randomLabel = tp.label;
+                    }
+                    else
+                    if ((rand() > rand()) && randomLabel == tp.label) {
+                        _compareTrainImgs.push_back(Compare(randomTrain, tp.processed));
+                        _compareTrainLabels.push_back(COMPARE_EQ);
                     }
 
                     if (lastLabel == tp.label) {
@@ -298,12 +312,48 @@ void Tester::run()
                         }
                     } else if (lastLabel > -1) {
                         if ((tp.flags & (COMPARE_TRAIN | COMPARE_MAIN_TRAIN)) && !test) {
-                            _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
-                            _compareTrainLabels.push_back(COMPARE_NEQ);
+//                            _compareTrainImgs.push_back(Compare(compareTrain, tp.processed));
+//                            _compareTrainLabels.push_back(COMPARE_NEQ);
+                            if (compareTrain2.rows && compareTrain3.rows) {
+                                if (rand() > rand()) {
+                                    _compareTrainImgs.push_back(Compare(compareTrain2, tp.processed));
+                                    _compareTrainLabels.push_back(COMPARE_NEQ);
+                                } else {
+                                    _compareTrainImgs.push_back(Compare(compareTrain3, tp.processed));
+                                    _compareTrainLabels.push_back(COMPARE_NEQ);
+                                }
+                                }
+                            if (compareTrain4.rows && compareTrain5.rows) {
+                                if (rand() > rand()) {
+                                    _compareTrainImgs.push_back(Compare(compareTrain4, tp.processed));
+                                    _compareTrainLabels.push_back(COMPARE_NEQ);
+                                } else {
+                                    _compareTrainImgs.push_back(Compare(compareTrain5, tp.processed));
+                                    _compareTrainLabels.push_back(COMPARE_NEQ);
+                                }
+                            }
                         }
                         else if ((tp.flags & COMPARE_TEST) && test) {
                             _compareTestImgs.push_back(Compare(compareTrain, tp.processed));
                             _compareTestLabels.push_back(COMPARE_NEQ);
+                            if (compareTrain2.rows && compareTrain3.rows) {
+                                if (rand() > rand()) {
+                                    _compareTestImgs.push_back(Compare(compareTrain2, tp.processed));
+                                    _compareTestLabels.push_back(COMPARE_NEQ);
+                                } else {
+                                    _compareTestImgs.push_back(Compare(compareTrain3, tp.processed));
+                                    _compareTestLabels.push_back(COMPARE_NEQ);
+                                }
+                            }
+                            if (compareTrain4.rows && compareTrain5.rows) {
+                                if (rand() > rand()) {
+                                    _compareTestImgs.push_back(Compare(compareTrain4, tp.processed));
+                                    _compareTestLabels.push_back(COMPARE_NEQ);
+                                } else {
+                                    _compareTestImgs.push_back(Compare(compareTrain5, tp.processed));
+                                    _compareTestLabels.push_back(COMPARE_NEQ);
+                                }
+                            }
                         }
                     }
                     lastLabel = tp.label;

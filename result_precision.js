@@ -117,7 +117,7 @@ if (exists) {
     let latextFile = ''
     let decimalDef = ' $ '
     let delimiter = ' & '
-    let endLine = ' \\\\ \n'
+    let endLine = ' \\\\\n'
     for (const [key, value] of Object.entries(testsGroup)) {
         const {testType, imgType, procType, techType} = value;
         latextFile += 
