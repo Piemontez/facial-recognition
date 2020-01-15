@@ -215,7 +215,7 @@ void Tester::run()
                         timeTrainig = cv::getTickCount();
                         img = pre->proccess(img.clone(), pos, imageLoader());
                         timeTrainig = cv::getTickCount() - timeTrainig;
-                        this->saveTest("processor", this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
+                        this->saveTest("processor", this->name(), this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
 
                         //tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
 
@@ -353,7 +353,7 @@ void Tester::run()
                 processorsNames.push_back("Recog: " + processorName);
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
-                this->saveTest("recog", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
+                this->saveTest("recog", this->name(), recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
 
 
                 std::cout << "    Realizando treinamento de comparacao:" << std::endl;
@@ -408,7 +408,7 @@ void Tester::run()
                 processorsNames.push_back("Compa: " + processorName);
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
-                this->saveTest("compare", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
+                this->saveTest("compare", this->name(), recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
             }
         }
     }
@@ -510,6 +510,7 @@ void Tester::addCsvHeader()
 {
     std::vector<std::string > cols;
     cols.push_back("test type");
+    cols.push_back("image type");
     cols.push_back("technique");
     cols.push_back("processors");
 
@@ -528,7 +529,8 @@ void Tester::addCsvHeader()
 }
 
 
-void Tester::saveTest(std::string type,
+void Tester::saveTest(std::string testType,
+                      std::string imageType,
                       std::string recogName,
                       std::string processorName,
                       int64_t timeTrainig,
@@ -539,7 +541,8 @@ void Tester::saveTest(std::string type,
     std::tie(VP, FP, FN, VN) = resultTest;
 
     std::vector<std::string > cols;
-    cols.push_back(type);
+    cols.push_back(testType);
+    cols.push_back(imageType);
     cols.push_back(recogName);
     cols.push_back(processorName);
 

@@ -43,7 +43,8 @@ public:
     void run();
 
     void addCsvHeader();
-    void saveTest(std::string type,
+    void saveTest(std::string testType,
+                  std::string imageType,
                   std::string recogName,
                   std::string processorName,
                   int64_t timeTrainig,
