@@ -309,7 +309,6 @@ void Tester::run()
                     lastLabel = tp.label;
                 }
 
-            if (false) {
                 std::cout << "    Realizando treinamento de reconhecimento." << std::endl;
                 recog->resetTrain();
                 timeTrainig = cv::getTickCount();
@@ -355,7 +354,7 @@ void Tester::run()
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
                 this->saveTest("recog", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
-            } int VP = 0, FP = 0, FN = 0, VN = 0; int posTest = 0;
+
 
                 std::cout << "    Realizando treinamento de comparacao:" << std::endl;
                 timeTrainig = 0;
