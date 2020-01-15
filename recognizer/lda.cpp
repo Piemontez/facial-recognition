@@ -30,7 +30,12 @@ void LDA::predict(const cv::Mat &image, int &label, int &confidence)
 
 int LDA::predict(const cv::Mat &image)
 {
-    return model->predict(image);
+    int label; double confidence;
+    model->predict(image, label, confidence);
+    if (confidence > predictMin)
+        return label;
+    else
+        return -1;
 }
 
 int LDA::compare(const cv::Mat &source, const cv::Mat &targe)

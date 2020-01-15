@@ -309,6 +309,7 @@ void Tester::run()
                     lastLabel = tp.label;
                 }
 
+            if (false) {
                 std::cout << "    Realizando treinamento de reconhecimento." << std::endl;
                 recog->resetTrain();
                 timeTrainig = cv::getTickCount();
@@ -338,10 +339,11 @@ void Tester::run()
                     timeRecog += cv::getTickCount() - time;
 
                     int realLabel = _recogTestLabels[posTest];
+                    bool inTrain = std::find(_recogTrainLabels.begin(), _recogTrainLabels.end(), realLabel) != _recogTrainLabels.end();
 
-                    testSensitivitiesSpecificity(std::find(_recogTrainLabels.begin(), _recogTrainLabels.end(), realLabel) != _recogTrainLabels.end(),
+                    testSensitivitiesSpecificity(inTrain,
                                                  label,
-                                                 realLabel,
+                                                 inTrain ? realLabel : -1,
                                                  VP, FP, FN, VN);
                     posTest++;
                 }
@@ -353,6 +355,7 @@ void Tester::run()
                 resultTests.push_back(std::make_tuple(VP, FP, FN, VN));
 
                 this->saveTest("recog", recog->algorithmName(), processorName, timeTrainig, timeRecog, std::make_tuple(VP, FP, FN, VN));
+            } int VP = 0, FP = 0, FN = 0, VN = 0; int posTest = 0;
 
                 std::cout << "    Realizando treinamento de comparacao:" << std::endl;
                 timeTrainig = 0;
@@ -378,10 +381,24 @@ void Tester::run()
                     int label = recog->compare(testImg.l, testImg.r);
                     timeRecog += cv::getTickCount() - time;
 
-                    testSensitivitiesSpecificity(_compareTestLabels[posTest] ? true : false,
+                    int realLabel = _compareTestLabels[posTest];
+
+                    if (realLabel == COMPARE_EQ) {
+                        if (realLabel == label)
+                            VP++;
+                        else
+                            FN++;
+                    } else {
+                        if (label == COMPARE_EQ)
+                            FP++;
+                        else
+                            VN++;
+                    }
+
+                    /*testSensitivitiesSpecificity(_compareTestLabels[posTest] ? true : false,
                                                  label,
                                                  _compareTestLabels[posTest],
-                                                 VP, FP, FN, VN);
+                                                 VP, FP, FN, VN);*/
                     posTest++;
                 }
                 timeRecog = timeRecog / _compareTestImgs.size();
@@ -469,7 +486,7 @@ std::vector<std::vector<int> > Tester::leaveOneOutGroups()
     return res;
 }
 
-void Tester::testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int realLabel, int &VP, int &FP, int &FN, int &VN)
+void Tester::testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int realLabel/*or -1*/, int &VP, int &FP, int &FN, int &VN)
 {
     if (inTrain) {
         if (predictedLabel == realLabel) {
@@ -480,9 +497,9 @@ void Tester::testSensitivitiesSpecificity(bool inTrain, int predictedLabel, int 
             FP++;
         }
     } else {
-        if (predictedLabel == realLabel) {
+        /*if (predictedLabel == realLabel && realLabel > -1) {
             VP++;
-        } else if (predictedLabel == -1) {
+        } else */if (predictedLabel == -1) {
             VN++;
         } else {
             FP++;
@@ -505,7 +522,7 @@ void Tester::addCsvHeader()
     // Results
     cols.push_back("VP");
     cols.push_back("FP");
-    cols.push_back("VN");
+    cols.push_back("FN");
     cols.push_back("VN");
 
     tools::appendCsv("results", cols);
