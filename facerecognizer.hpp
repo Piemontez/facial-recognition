@@ -13,7 +13,7 @@ namespace cv {
  */
 class Recognizer {
 public:
-    const double predictMin = 0.5;
+    const double predictMin = 0.3;
     /*!
      * \brief algorithmName retorna o nome do algorítmo. Utilizado na localização da técnica pelo algorithmFactory
      * \return

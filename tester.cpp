@@ -192,8 +192,8 @@ void Tester::run()
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
             for (auto && tp: this->d_ptr->images) {
-//                if (pos == 381 || pos == 280)
-//                    continue;
+                if ((this->name().compare("3D Tester") == 0) && (pos == 381 || pos == 280))
+                    continue;
 
                 auto img = tp.image;
 
@@ -263,6 +263,9 @@ void Tester::run()
                 int lastLabel = -1, randomLabel = -1;
 
                 for (auto tp: this->d_ptr->images) {
+                    if (tp.processed.rows == 0)
+                        continue;
+
                     bool test = false;
                     int groupPos = 0;
                     for (auto labelsTest: testGroups) {/*grupos de testes*/
@@ -450,7 +453,7 @@ void Tester::run()
                                                  VP, FP, FN, VN);*/
                     posTest++;
                 }
-                timeRecog = timeRecog / _compareTestImgs.size();
+                timeRecog = _compareTestImgs.size() ? timeRecog / _compareTestImgs.size() : 0;
 
 
                 //Contabiliza o teste

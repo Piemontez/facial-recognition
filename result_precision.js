@@ -97,10 +97,10 @@ if (exists) {
 		value.predictMedia = value.predictTotal / value.qtdTests
         value.predictMediana = value.predictTimes[ parseInt(value.qtdTests / 2, 10) ]
         
-        value.VP /= value.qtdTests
+        /*value.VP /= value.qtdTests
         value.FP /= value.qtdTests
         value.FN /= value.qtdTests
-        value.VN /= value.qtdTests
+        value.VN /= value.qtdTests*/
 
         value.sensibilidade  = value.VP / (value.VP + value.FN)
         value.especificidade = value.VN / (value.FP + value.VN)
@@ -115,22 +115,33 @@ if (exists) {
     )
     
     let latextFile = ''
-    let decimalDef = ' $ '
-    let delimiter = ' & '
-    let endLine = ' \\\\\n'
-    for (const [key, value] of Object.entries(testsGroup)) {
+    const decimalDef = ' $ '
+    const delimiter = ' & '
+    const endLine = ' \\\\\n'
+    const entries = Object.entries(testsGroup)
+    
+    //Ordena a listagem
+    entries.sort(function([akey, avalue], [bkey, bvalue]) {
+	  if (avalue.precisao > bvalue.precisao)
+		return -1;
+	  if (avalue.precisao < bvalue.precisao)
+		return 1;
+	  return 0;
+	})
+
+    for (const [key, value] of entries) {
         const {testType, imgType, procType, techType} = value;
         latextFile += 
             testType + delimiter +
             imgType.replace(' Tester', '') + delimiter +
             '[' + procType.trim() + '] + ' + techType.replace('OpenCV', '') + delimiter +
-            value.VP + delimiter +
-            value.FP + delimiter +
-            value.FN + delimiter +
-            value.VN + delimiter +
-            decimalDef + value.sensibilidade.toFixed(3)  + decimalDef + delimiter +
-            decimalDef + value.especificidade.toFixed(3) + decimalDef + delimiter +
-            decimalDef + value.precisao.toFixed(3)       + decimalDef + delimiter +
+            decimalDef + value.VP						+ decimalDef + delimiter +
+            decimalDef + value.FP						+ decimalDef + delimiter +
+            decimalDef + value.FN						+ decimalDef + delimiter +
+            decimalDef + value.VN			 			+ decimalDef + delimiter +
+            decimalDef + value.sensibilidade.toFixed(3)	+ decimalDef + delimiter +
+            decimalDef + value.especificidade.toFixed(3)+ decimalDef + delimiter +
+            decimalDef + value.precisao.toFixed(3)		+ decimalDef + delimiter +
             endLine;
     }
 
