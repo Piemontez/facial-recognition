@@ -146,4 +146,5 @@ if (exists) {
     }
 
     console.log(latextFile);
+    console.log("\nTotal de testes: " + Object.keys(testsGroup).length);
 }

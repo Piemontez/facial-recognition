@@ -9,15 +9,16 @@
 
 #include "opencv4/opencv2/opencv.hpp"
 
-ThreeDTester::ThreeDTester() {
+ThreeDTester::ThreeDTester(bool poseCorrection) {
     auto imgLoader = new ThreeLoader;
     setImageLoader(imgLoader);
 
     addPreProcessorOrderFixed(new ROI());
-    addPreProcessorOrderFixed(new PoseCorrection(imgLoader));
+    if (poseCorrection)
+        addPreProcessorOrderFixed(new PoseCorrection(imgLoader));
 
-    addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
+    addPreProcessor(new GaussianBlur);
     addPreProcessor(new DCT);
 }
 

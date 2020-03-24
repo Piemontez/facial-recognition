@@ -12,7 +12,8 @@ int main(int /*argc*/, char **/*argv*/)
 
     std::vector<Tester *> tests;
 
-    tests.push_back(new ThreeDTester);
+    tests.push_back(new ThreeDTester(true));
+    tests.push_back(new ThreeDTester(false));
     tests.push_back(new IRTester);
     tests.push_back(new VisTester);
 

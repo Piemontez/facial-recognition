@@ -5,6 +5,8 @@
 #include "imageprocessor.hpp"
 #include "tools.hpp"
 
+#include "loader/3dloader.hpp"
+
 #include <iostream>
 #include <map>
 #include <opencv4/opencv2/opencv.hpp>
@@ -192,10 +194,18 @@ void Tester::run()
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
             for (auto && tp: this->d_ptr->images) {
-                if ((this->name().compare("3D Tester") == 0) && (pos == 381 || pos == 280))
+                if (pos != 17 && pos != 18) {
+                    pos++;
                     continue;
+                }
+                if ((this->name().compare("3D Tester") == 0) && (pos == 381 || pos == 280)) {
+                    pos++;
+                    continue;
+                }
 
+                std::cout << "    Posição: " << pos << std::endl;
                 auto img = tp.image;
+
 
                 load = tools::loadImgProc("-Original-" + this->name(), pos, 0);
                 if (load.empty())
@@ -216,11 +226,12 @@ void Tester::run()
                         img = pre->proccess(img.clone(), pos, imageLoader());
                         timeTrainig = cv::getTickCount() - timeTrainig;
                         this->saveTest("processor", this->name(), this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
-
-                        //tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
-
                     }
-                    //cv::imshow(name, img); cv::waitKey(150);
+
+//                    cv::Mat rgb = ((ThreeLoader*)imageLoader())->imagesRGB()[pos];
+//                    cv::imshow("processada", img);
+//                    cv::waitKey();
+//                    cv::imshow("rgb", rgb);
                     tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
                 } else
                     img = load;

@@ -13,8 +13,8 @@ IRTester::IRTester() {
 
     addPreProcessorOrderFixed(new ROI());
 
-    addPreProcessor(new GaussianBlur);
     addPreProcessor(new LBP);
+    addPreProcessor(new GaussianBlur);
     addPreProcessor(new DCT);
 }
 

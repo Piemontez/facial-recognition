@@ -18,11 +18,11 @@ int detected = 0;
 int ndetected = 0;
 cv::Mat ROI::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
-    cv::Mat rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
-
-    if (imgLoader->flags().front() & DEPTH)
+    cv::Mat rgb=((ThreeLoader*)imgLoader)->imagesRGB()[pos];
+    if (imgLoader->flags().front() & DEPTH) {
+        cv::Mat rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
         rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
-    else
+    } else
         rgb = image.clone();
 
 //    cv::imshow("image", image);

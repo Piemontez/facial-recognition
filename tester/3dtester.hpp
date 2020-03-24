@@ -6,7 +6,7 @@
 class ThreeDTester : public Tester
 {
 public:
-    ThreeDTester();
+    ThreeDTester(bool poseCorrection);
 
     std::string name() override;
 };
