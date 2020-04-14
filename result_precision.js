@@ -31,61 +31,64 @@ if (exists) {
 		const VN    = parseInt(cols[10], 10)
 		const trainTime = (parseFloat(trainFreqs) / parseFloat(cpuFreq)) || 0
 		const predictTime = (parseFloat(predictFreqs) / parseFloat(cpuFreq)) || 0
+
+		if (['recog','compare'].includes(testType)) {
 		
-		if (testsGroup[groupName] === undefined)
-			testsGroup[groupName] = {
-                testType,
-                imgType,
-                techType,
-                procType,	
-				qtdTests: 0,	
+			if (testsGroup[groupName] === undefined)
+				testsGroup[groupName] = {
+		            testType,
+		            imgType,
+		            techType,
+		            procType,	
+					qtdTests: 0,	
 
-				trainTimes: [],	
-				trainTotal: 0,
-				trainMedia: null,
-				trainMin: trainTime,
-				trainMax: trainTime,
-                trainMediana: null,
+					trainTimes: [],	
+					trainTotal: 0,
+					trainMedia: null,
+					trainMin: trainTime,
+					trainMax: trainTime,
+		            trainMediana: null,
 
-				predictTimes: [],	
-				predictTotal: 0,
-				predictMedia: null,
-				predictMin: predictTime,
-				predictMax: predictTime,
-                predictMediana: null,
-                
-                VP: 0,
-                FP: 0,
-                FN: 0,
-                VN: 0,
+					predictTimes: [],	
+					predictTotal: 0,
+					predictMedia: null,
+					predictMin: predictTime,
+					predictMax: predictTime,
+		            predictMediana: null,
+		            
+		            VP: 0,
+		            FP: 0,
+		            FN: 0,
+		            VN: 0,
 
-                sensibilidade: 0,
-                especificidade: 0,
-                precisao: 0
-			}
-		
-		testsGroup[groupName].qtdTests++;
+		            sensibilidade: 0,
+		            especificidade: 0,
+		            precisao: 0
+				}
+			
+			testsGroup[groupName].qtdTests++;
 
-        //Tempos de treinamento
-		testsGroup[groupName].trainTimes.push( trainTime )
-		testsGroup[groupName].trainTotal += trainTime
-		if (trainTime < testsGroup[groupName].trainMin)
-			testsGroup[groupName].trainMin = trainTime
-		if (trainTime > testsGroup[groupName].trainMax)
-			testsGroup[groupName].trainMax = trainTime
+		    //Tempos de treinamento
+			testsGroup[groupName].trainTimes.push( trainTime )
+			testsGroup[groupName].trainTotal += trainTime
+			if (trainTime < testsGroup[groupName].trainMin)
+				testsGroup[groupName].trainMin = trainTime
+			if (trainTime > testsGroup[groupName].trainMax)
+				testsGroup[groupName].trainMax = trainTime
 
-        //Tempos de predição
-		testsGroup[groupName].predictTimes.push( predictTime )
-		testsGroup[groupName].predictTotal += predictTime
-        if (predictTime < testsGroup[groupName].predictMin)
-            testsGroup[groupName].predictMin = predictTime
-        if (predictTime > testsGroup[groupName].predictMax)
-            testsGroup[groupName].predictMax = predictTime
+		    //Tempos de predição
+			testsGroup[groupName].predictTimes.push( predictTime )
+			testsGroup[groupName].predictTotal += predictTime
+		    if (predictTime < testsGroup[groupName].predictMin)
+		        testsGroup[groupName].predictMin = predictTime
+		    if (predictTime > testsGroup[groupName].predictMax)
+		        testsGroup[groupName].predictMax = predictTime
 
-        testsGroup[groupName].VP += VP
-        testsGroup[groupName].FP += FP
-        testsGroup[groupName].FN += FN
-        testsGroup[groupName].VN += VN
+		    testsGroup[groupName].VP += VP
+		    testsGroup[groupName].FP += FP
+		    testsGroup[groupName].FN += FN
+		    testsGroup[groupName].VN += VN
+	    }
 	});
 
 	for (const [key, value] of Object.entries(testsGroup)) {

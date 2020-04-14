@@ -194,10 +194,6 @@ void Tester::run()
         {//Realiza os pré-processamentos da imagem
             int pos = 0;
             for (auto && tp: this->d_ptr->images) {
-                if (pos != 17 && pos != 18) {
-                    pos++;
-                    continue;
-                }
                 if ((this->name().compare("3D Tester") == 0) && (pos == 381 || pos == 280)) {
                     pos++;
                     continue;
@@ -205,7 +201,6 @@ void Tester::run()
 
                 std::cout << "    Posição: " << pos << std::endl;
                 auto img = tp.image;
-
 
                 load = tools::loadImgProc("-Original-" + this->name(), pos, 0);
                 if (load.empty())
