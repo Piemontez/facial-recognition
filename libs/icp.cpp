@@ -165,10 +165,15 @@ cv::Mat ICP::proccess(const cv::Mat &imageCache, int pos, ImageLoader* imgLoader
         for (int l =0; l < 3; l++) {
 
             imageCloud.convertTo(teste, CV_64FC1);
-            switch (l) {
-            case 0: residual = icpExternal->fit((double *)teste.data, teste.rows, R, t, -1); break;
-            case 1: residual = icpExternal_0_9->fit((double *)teste.data, teste.rows, R, t, -1); break;
-            case 2: residual = icpExternal_1_1->fit((double *)teste.data, teste.rows, R, t, -1); break;
+
+            try {
+                switch (l) {
+                case 0: residual = icpExternal->fit((double *)teste.data, teste.rows, R, t, -1); break;
+                case 1: residual = icpExternal_0_9->fit((double *)teste.data, teste.rows, R, t, -1); break;
+                case 2: residual = icpExternal_1_1->fit((double *)teste.data, teste.rows, R, t, -1); break;
+                }
+            }  catch (...) {
+                residual = lastResidual;
             }
 
             std::printf("ext. residual: %f\n", residual);

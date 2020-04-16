@@ -708,7 +708,7 @@ void Matrix::svd(Matrix &U2,Matrix &W,Matrix &V) {
         break;
       }
       if (its == 29)
-        cerr << "ERROR in SVD: No convergence in 30 iterations" << endl;
+        throw "ERROR in SVD: No convergence in 30 iterations" ;
       x = w[l]; // Shift from bottom 2-by-2 minor.
       nm = k-1;
       y = w[nm];
