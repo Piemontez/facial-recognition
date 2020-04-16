@@ -144,7 +144,7 @@ if (exists) {
             decimalDef + value.VN			 			+ decimalDef + delimiter +
             decimalDef + value.sensibilidade.toFixed(3)	+ decimalDef + delimiter +
             decimalDef + value.especificidade.toFixed(3)+ decimalDef + delimiter +
-            decimalDef + value.precisao.toFixed(3)		+ decimalDef + delimiter +
+            decimalDef + value.precisao.toFixed(3)		+ decimalDef +
             endLine;
     }
 
