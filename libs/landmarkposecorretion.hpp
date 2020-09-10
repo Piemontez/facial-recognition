@@ -9,12 +9,12 @@
 /**
  * @brief The Iterative closest point
  */
-class GanPan : public ImageProcessor
+class LandMarkPoseCorrection : public ImageProcessor
 {
     FaceDetection *faceD;
     cv::Ptr<cv::face::Facemark> facemark;
 public:
-    GanPan();
+    LandMarkPoseCorrection();
 
     virtual cv::Mat proccess(const cv::Mat &image, int pos = 0, ImageLoader* imgLoader = nullptr) override;
     virtual void estimatePoseDirection(const cv::Mat &image, const std::vector<std::vector<cv::Point2f> > &shapes, cv::Mat &rvec, cv::Mat &tvec);

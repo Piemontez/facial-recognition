@@ -1,4 +1,4 @@
-#include "ganpan.hpp"
+#include "landmarkposecorretion.hpp"
 #include "../tools.hpp"
 #include "../loader/3dloader.hpp"
 
@@ -10,7 +10,7 @@
 
 //https://levelup.gitconnected.com/facial-landmark-detection-in-opencv4-616f9c1737a5
 
-GanPan::GanPan()
+LandMarkPoseCorrection::LandMarkPoseCorrection()
 {
 
     const std::string facemark_filename = "data/lbfmodel.yaml";
@@ -21,7 +21,7 @@ GanPan::GanPan()
     faceD = new FaceDetection();
 }
 
-cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
+cv::Mat LandMarkPoseCorrection::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
 //    cv::imshow("teste", image);
 //    cv::moveWindow("teste",  0,300);
@@ -81,7 +81,7 @@ cv::Mat GanPan::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
     return image.clone();
 }
 
-void GanPan::estimatePoseDirection(const cv::Mat &image, const std::vector< std::vector<cv::Point2f> > &shapes, cv::Mat &rvec, cv::Mat &tvec)
+void LandMarkPoseCorrection::estimatePoseDirection(const cv::Mat &image, const std::vector< std::vector<cv::Point2f> > &shapes, cv::Mat &rvec, cv::Mat &tvec)
 {
     std::vector<cv::Point3f> objectPoints {
       {8.27412, 1.33849, 10.63490},    //left eye corner
@@ -134,7 +134,7 @@ void GanPan::estimatePoseDirection(const cv::Mat &image, const std::vector< std:
     */
 }
 
-void GanPan::rotateImage(const cv::Mat &depth, const cv::Mat &color, cv::Mat &output, cv::Mat &rvec, cv::Mat &tvec)
+void LandMarkPoseCorrection::rotateImage(const cv::Mat &depth, const cv::Mat &color, cv::Mat &output, cv::Mat &rvec, cv::Mat &tvec)
 {
     cv::Mat imageCloud;
     cv::Mat rgbF;

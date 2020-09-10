@@ -6,7 +6,7 @@
 #include "../imageloader.hpp"
 #include "../libs/afm.hpp"
 #include "../libs/icp.hpp"
-#include "../libs/ganpan.hpp"
+#include "../libs/landmarkposecorretion.hpp"
 
 class PoseCorrection : public ImageProcessor
 {
@@ -15,7 +15,7 @@ class PoseCorrection : public ImageProcessor
 
     AFM *afm;
     ICP *icp;
-    GanPan *ganpan;
+    LandMarkPoseCorrection *landmarkposecorretion;
 public:
     PoseCorrection(ImageLoader *loader);
 

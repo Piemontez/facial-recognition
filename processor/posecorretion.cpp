@@ -10,12 +10,12 @@ PoseCorrection::PoseCorrection(ImageLoader *loader)
     icp = new ICP(afmImg);
 
     //icp = new ICP(cv::Mat());
-    ganpan = new GanPan();
+    landmarkposecorretion = new LandMarkPoseCorrection();
 }
 
 cv::Mat PoseCorrection::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
     return icp->proccess(
-        ganpan->proccess(image, pos, imgLoader)
+        landmarkposecorretion->proccess(image, pos, imgLoader)
     , pos, imgLoader);
 }

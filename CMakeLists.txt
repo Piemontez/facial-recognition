@@ -75,7 +75,7 @@ add_executable(facerecog-tester
     recognizer/svm.cpp
     recognizer/lpp.cpp
 #libs
-    libs/ganpan.cpp
+    libs/landmarkposecorretion.cpp
     libs/afm.cpp
     libs/icp.cpp
     libs/facedetection.cpp
