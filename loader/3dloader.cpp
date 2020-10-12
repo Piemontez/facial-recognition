@@ -224,3 +224,8 @@ std::vector<int> ThreeLoader::flags()
 
     return flags;
 }
+
+std::string ThreeLoader::name()
+{
+    return "ThreeLoader";
+}

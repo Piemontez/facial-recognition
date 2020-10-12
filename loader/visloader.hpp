@@ -16,6 +16,7 @@ public:
     virtual std::vector<cv::Mat> images() override;
     virtual std::vector<int> labels() override;
     virtual std::vector<int> flags() override;
+    virtual std::string name() override;
 };
 
 #endif // VISLOADER_HPP

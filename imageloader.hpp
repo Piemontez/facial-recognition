@@ -2,6 +2,7 @@
 #define IMAGELOADER_HPP
 
 #include "vector"
+#include "string"
 
 namespace cv {
     class Mat;
@@ -33,6 +34,7 @@ public:
     virtual std::vector<cv::Mat> images() = 0;
     virtual std::vector<int> labels() = 0;
     virtual std::vector<int> flags() = 0;
+    virtual std::string name() = 0;
 };
 
 #endif // IMAGELOADER_HPP

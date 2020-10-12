@@ -18,9 +18,8 @@ int detected = 0;
 int ndetected = 0;
 cv::Mat ROI::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
 {
-    cv::Mat rgb=((ThreeLoader*)imgLoader)->imagesRGB()[pos];
+    cv::Mat rgb;
     if (imgLoader->flags().front() & DEPTH) {
-        cv::Mat rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
         rgb = ((ThreeLoader*)imgLoader)->imagesRGB()[pos];
     } else
         rgb = image.clone();
@@ -56,6 +55,7 @@ cv::Mat ROI::proccess(const cv::Mat &image, int pos, ImageLoader* imgLoader)
         /*cv::imshow("rgb", rgb);
         cv::imshow("roi", roi);
         cv::waitKey();*/
+        throw "no_roi";
         return image.clone();
     }
 }

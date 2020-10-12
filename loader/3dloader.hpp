@@ -18,6 +18,7 @@ public:
     std::vector<cv::Mat> imagesRGB();
     virtual std::vector<int> labels() override;
     virtual std::vector<int> flags() override;
+    virtual std::string name() override;
 };
 
 #endif // THREELOADER_HPP

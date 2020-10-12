@@ -140,3 +140,8 @@ std::vector<int> VisLoader::flags()
 
     return flags;
 }
+
+std::string VisLoader::name()
+{
+    return "VisLoader";
+}

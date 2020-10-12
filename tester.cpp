@@ -165,7 +165,7 @@ void Tester::run()
     std::cout << "  Total de permutações:" << _permutations.size() << std::endl;
     std::cout << "  Total de testes por permutação:" << testGroups.size() << std::endl;
     std::cout << "  Total de amostras por teste:" << (testGroups.size() ? (images().size() / testGroups.size()) : 0) << std::endl;
-    std::cout << "  Total de reconhecedores:" << recogs.size() << std::endl;
+    std::cout << "  Total de classificadores:" << recogs.size() << std::endl;
 
     std::cout << "  Iniciando pré processamento." << std::endl;
     //Percorre as imagens e aplica os pré-processadors por permutação
@@ -199,7 +199,7 @@ void Tester::run()
                     continue;
                 }
 
-                std::cout << "    Posição: " << pos << std::endl;
+                //std::cout << "    Posição: " << pos << std::endl;
                 auto img = tp.image;
 
                 load = tools::loadImgProc("-Original-" + this->name(), pos, 0);
@@ -211,31 +211,36 @@ void Tester::run()
                     name += "-" + pre->name();
                 load = tools::loadImgProc(name + "-" + this->name(), pos, perms.size());
 
-                if (load.empty()) {
-                    int64_t timeTrainig;
-                    int permPos = 0;
-                    for (auto && pre: perms) {
-                        permPos++;
+                try {
+                    if (load.empty()) {
+                        int64_t timeTrainig;
+                        int permPos = 0;
+                        for (auto && pre: perms) {
+                            permPos++;
 
-                        timeTrainig = cv::getTickCount();
-                        img = pre->proccess(img.clone(), pos, imageLoader());
-                        timeTrainig = cv::getTickCount() - timeTrainig;
-                        this->saveTest("processor", this->name(), this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
+                            timeTrainig = cv::getTickCount();
+                            img = pre->proccess(img.clone(), pos, imageLoader());
+                            timeTrainig = cv::getTickCount() - timeTrainig;
+                            this->saveTest("processor", this->name(), this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
+                        }
+
+    //                    cv::Mat rgb = ((ThreeLoader*)imageLoader())->imagesRGB()[pos];
+    //                    cv::imshow("processada", img);
+    //                    cv::waitKey();
+    //                    cv::imshow("rgb", rgb);
+                        tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
+                    } else
+                        img = load;
+
+                    if (img.channels() > 1) {
+                        cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
                     }
 
-//                    cv::Mat rgb = ((ThreeLoader*)imageLoader())->imagesRGB()[pos];
-//                    cv::imshow("processada", img);
-//                    cv::waitKey();
-//                    cv::imshow("rgb", rgb);
-                    tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
-                } else
-                    img = load;
-
-                if (img.channels() > 1) {
-                    cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+                    tp.processed = img;
+                }  catch (...) {
+                    //Falha ao tentar processar imagem.
+                    //Imagem descartada.
                 }
-
-                tp.processed = img;
 
                 pos++;
             }

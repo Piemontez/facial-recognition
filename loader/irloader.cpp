@@ -140,3 +140,8 @@ std::vector<int> IrLoader::flags()
 
     return flags;
 }
+
+std::string IrLoader::name()
+{
+    return "IrLoader";
+}
