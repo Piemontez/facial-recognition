@@ -13,9 +13,9 @@ VisTester::VisTester() {
 
     addPreProcessorOrderFixed(new ROI());
 
-    //addPreProcessor(new LBP);
-    //addPreProcessor(new GaussianBlur);
-    //addPreProcessor(new DCT);
+    addPreProcessor(new LBP);
+    addPreProcessor(new GaussianBlur);
+    addPreProcessor(new DCT);
 }
 
 std::string VisTester::name()

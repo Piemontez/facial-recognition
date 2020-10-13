@@ -26,6 +26,8 @@ public:
     //virtual int test(cv::Mat test) = 0;
     //virtual bool test(cv::Mat source, cv::Mat targe) = 0;
 
+    void disableCache();
+
     std::vector<cv::Mat> images();
     std::vector<int> labels();
 

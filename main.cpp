@@ -12,10 +12,10 @@ int main(int /*argc*/, char **/*argv*/)
 
     std::vector<Tester *> tests;
 
-    //tests.push_back(new ThreeDTester(true));
+    tests.push_back(new ThreeDTester(true));
     //tests.push_back(new ThreeDTester(false));
     //tests.push_back(new IRTester);
-    tests.push_back(new VisTester);
+    //tests.push_back(new VisTester);
 
     std::cout << "  Total testadores:" << tests.size() << std::endl;
     for (auto && tester: tests)
@@ -24,8 +24,10 @@ int main(int /*argc*/, char **/*argv*/)
                   << "    Total Pre processadores: " << tester->preProcessors().size() << std::endl;
 
     std::cout << "Iniciando testes" << std::endl;
-    for (auto && tester: tests)
+    for (auto && tester: tests) {
+        tester->disableCache();
         tester->run();
+    }
 
     return 0;
 }

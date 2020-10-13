@@ -8,7 +8,7 @@
 #include <opencv4/opencv2/surface_matching.hpp>
 #include <opencv4/opencv2/surface_matching/ppf_helpers.hpp>
 
-#define BY_OPENCV_ICP false
+#define BY_OPENCV_ICP true
 
 //https://docs.opencv.org/4.1.2/d9/d25/group__surface__matching.html
 

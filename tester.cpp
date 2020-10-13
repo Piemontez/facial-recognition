@@ -39,6 +39,7 @@ struct Compare {
 };
 
 struct TesterPrivate {
+    int cacheImage = true;
     int leaveOneOutGroupSize{5};
 
     std::vector< Image > images;
@@ -57,6 +58,11 @@ Tester::Tester() : d_ptr(new TesterPrivate)
 std::string Tester::name()
 {
     return "No Name";
+}
+
+void Tester::disableCache()
+{
+    this->d_ptr->cacheImage = false;
 }
 
 std::vector<cv::Mat> Tester::images()
@@ -202,14 +208,22 @@ void Tester::run()
                 //std::cout << "    Posição: " << pos << std::endl;
                 auto img = tp.image;
 
-                load = tools::loadImgProc("-Original-" + this->name(), pos, 0);
-                if (load.empty())
-                    tools::saveImgProc(img, "-Original-" + this->name(), pos, 0, false);
+                if (this->d_ptr->cacheImage) {
+                    //Verifica se a imagme já foi processada e carrega
+                    load = tools::loadImgProc("-Original-" + this->name(), pos, 0);
+                    //Salva imagem de cache
+                    if (load.empty())
+                        tools::saveImgProc(img, "-Original-" + this->name(), pos, 0, false);
+                }
 
                 std::string name;
                 for (auto && pre: perms)
                     name += "-" + pre->name();
-                load = tools::loadImgProc(name + "-" + this->name(), pos, perms.size());
+
+                if (this->d_ptr->cacheImage) {
+                    //Verifica se a imagme já foi processada e carrega
+                    load = tools::loadImgProc(name + "-" + this->name(), pos, perms.size());
+                }
 
                 try {
                     if (load.empty()) {
@@ -219,8 +233,11 @@ void Tester::run()
                             permPos++;
 
                             timeTrainig = cv::getTickCount();
+                            //Realizar pre-processamento das imagens
                             img = pre->proccess(img.clone(), pos, imageLoader());
                             timeTrainig = cv::getTickCount() - timeTrainig;
+
+                            //Salva tempo de processamento da imagem
                             this->saveTest("processor", this->name(), this->name(), pre->name(), timeTrainig, 0, std::make_tuple(0, 0, 0, 0));
                         }
 
@@ -228,10 +245,14 @@ void Tester::run()
     //                    cv::imshow("processada", img);
     //                    cv::waitKey();
     //                    cv::imshow("rgb", rgb);
-                        tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
+                        if (this->d_ptr->cacheImage) {
+                            //Salva imagem de cache
+                            tools::saveImgProc(img, name + "-" + this->name(), pos, permPos);
+                        }
                     } else
                         img = load;
 
+                    //Converte em escala de cinza para realizar o reconhecimento facial
                     if (img.channels() > 1) {
                         cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
                     }
@@ -246,13 +267,10 @@ void Tester::run()
             }
         }
 
-        //Todo: remover para inicar treinamento
-
-
         //Percorre os algorítmos de reconhecimento e realiza os testes de reconhecimento
         for (auto && recog: recogs) {
             std::cout << "    Reconhecedor: " << recog->algorithmName() << std::endl;
-            for (int testPos = 0; testPos < testGroups.size(); testPos++)
+            for (std::size_t testPos = 0; testPos < testGroups.size(); testPos++)
             {
                 std::cout << "    Grupo teste: " << testPos << std::endl;
 
@@ -631,6 +649,7 @@ void Tester::showResults(std::vector< std::string > recogsNames, std::vector< st
     std::map< std::string, std::tuple<int, int, int, int, int> > medias;
 
     int VP, FP, FN, VN, testes;
+    int acuracy, especificidade, sensibilidade;
 
     auto itRecogs = recogsNames.begin();
     auto itProcs = processorsNames.begin();
@@ -667,7 +686,13 @@ void Tester::showResults(std::vector< std::string > recogsNames, std::vector< st
     while (itMedia != medias.end()) {
         std::tie(VP, FP, FN, VN, testes) = itMedia->second;
 
-        std::cout << itMedia->first << " : " << (VP/testes) << " " << (FP/testes) << " " << (FN/testes) << " " << (VN/testes) <<  std::endl;
+        sensibilidade  = 100 * VP / (VP + FN);
+        especificidade = 100 * VN / (FP + VN);
+        acuracy = 100 * (VP + VN) / (VP + FP + FN + VN);
+
+        std::cout << itMedia->first
+                  << " : " << (VP/testes) << " " << (FP/testes) << " " << (FN/testes) << " " << (VN/testes)
+                  << " : " << sensibilidade  << " " << especificidade << " " << acuracy << std::endl;
 
         itMedia++;
     }

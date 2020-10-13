@@ -17,9 +17,9 @@ ThreeDTester::ThreeDTester(bool poseCorrection) {
     if (poseCorrection)
         addPreProcessorOrderFixed(new PoseCorrection(imgLoader));
 
-    addPreProcessor(new LBP);
-    addPreProcessor(new GaussianBlur);
-    addPreProcessor(new DCT);
+    //addPreProcessor(new LBP);
+    //addPreProcessor(new GaussianBlur);
+    //addPreProcessor(new DCT);
 }
 
 std::string ThreeDTester::name()
